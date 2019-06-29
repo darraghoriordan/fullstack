@@ -2,7 +2,7 @@
   "PORT": 4000,
   "DB_NAME": "fullstack",
   "MONGO_HOST": "",
-  "ACCOUNTS_SECRET": "secret",
+  "ACCOUNTS_SECRET": "thisshouldbeaverylongsecret",
   "PLAID_CLIENT_ID": "xxxxxxx",
   "PLAID_SECRET": "xxxxxxx",
   "PLAID_PUBLIC_KEY": "xxxxxxx",

@@ -29,6 +29,17 @@ export type CreateUserInput = {
   profile: ProfileInput
 }
 
+export type DevopsAccount = {
+  __typename?: 'DevopsAccount'
+  accessToken: Scalars['String']
+  organisationName: Scalars['String']
+}
+
+export type DevopsAccountInput = {
+  accessToken: Scalars['String']
+  organisationName: Scalars['String']
+}
+
 export type EmailRecord = {
   __typename?: 'EmailRecord'
   address?: Maybe<Scalars['String']>
@@ -203,6 +214,7 @@ export type User = {
   username?: Maybe<Scalars['String']>
   _id: Scalars['ID']
   profile: Profile
+  devopsAccount?: Maybe<DevopsAccount>
   plaid?: Maybe<Plaid>
   properties?: Maybe<Array<Property>>
   roles: Array<Role>
@@ -219,6 +231,7 @@ export type UserInput = {
 export type OnboardUserMutationVariables = {
   publicToken: Scalars['String']
   property: PropertyInput
+  devopsAccount: DevopsAccountInput
 }
 
 export type OnboardUserMutation = { __typename?: 'Mutation' } & Pick<Mutation, 'onboardUser'>
@@ -233,7 +246,11 @@ export type MeQuery = { __typename?: 'Query' } & {
 }
 
 export const OnboardUserDocument = gql`
-  mutation OnboardUser($publicToken: String!, $property: PropertyInput!) {
+  mutation OnboardUser(
+    $publicToken: String!
+    $property: PropertyInput!
+    $devopsAccount: DevopsAccountInput!
+  ) {
     onboardUser(publicToken: $publicToken, property: $property)
   }
 `

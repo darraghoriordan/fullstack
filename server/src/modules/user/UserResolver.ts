@@ -1,7 +1,7 @@
 import { Arg, Resolver, Query, Authorized, Mutation, Ctx, ID, InputType, Field } from 'type-graphql'
 import { Context } from '../common/context'
 import { UserService } from './UserService'
-import { User, Profile } from './UserEntity'
+import { User, Profile, DevopsAccount } from './UserEntity'
 import './enums'
 import { accountsPassword } from './accounts'
 import { Role } from './consts'
@@ -14,6 +14,15 @@ class ProfileInput implements Partial<Profile> {
 
   @Field(type => String)
   lastName: string
+}
+
+@InputType()
+class DevopsAccountInput implements Partial<DevopsAccount> {
+  @Field(type => String)
+  accessToken: string
+
+  @Field(type => String)
+  organisationName: string
 }
 
 @InputType()
@@ -72,24 +81,14 @@ export default class UserResolver {
   async onboardUser(
     @Arg('publicToken') publicToken: string,
     @Arg('property') property: PropertyInput,
+    // @Arg('devopsAccount') devopsAccount: DevopsAccountInput,
     @Ctx() ctx: Context
   ) {
-    return new Promise((resolve, reject) => {
-      plaid.exchangePublicToken(publicToken, async (err, response) => {
-        if (err != null) reject(err)
+    const user = await this.service.findOneById(ctx.userId)
 
-        const user = await this.service.findOneById(ctx.userId)
-        user.plaid = {
-          accessToken: response.access_token,
-          itemId: response.item_id,
-        }
-        user.properties = [property]
-        user.isOnboarded = true
-        await user.save()
-
-        resolve(true)
-      })
-    })
+    // user.devopsAccount = devopsAccount
+    user.isOnboarded = true
+    await user.save()
   }
 
   @Mutation(returns => Boolean)

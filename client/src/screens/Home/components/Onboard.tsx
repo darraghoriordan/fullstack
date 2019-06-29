@@ -9,7 +9,11 @@ import { MapsPrediction } from './AddressAutofillInput'
 import OnboardPages from './OnboardPages'
 
 export const ONBOARD_USER = gql`
-  mutation OnboardUser($publicToken: String!, $property: PropertyInput!) {
+  mutation OnboardUser(
+    $publicToken: String!
+    $property: PropertyInput!
+    $devopsAccount: DevopsAccountInput!
+  ) {
     onboardUser(publicToken: $publicToken, property: $property)
   }
 `
@@ -52,6 +56,7 @@ const Onboard = (props: { done: () => void }) => {
     await onboardUser({
       variables: {
         publicToken,
+        devopsAccount: { accessToken: '', organisationName: '' },
         property: {
           address: selectedItem!.description,
           placeId: selectedItem!.place_id,
@@ -61,7 +66,7 @@ const Onboard = (props: { done: () => void }) => {
     })
     props.done()
   }
-
+  const lastPageIndex = 2
   return (
     <Box style={{ height: '75%' }}>
       <BoxInner>
@@ -76,15 +81,15 @@ const Onboard = (props: { done: () => void }) => {
           style={{ position: 'relative', marginBottom: 40, marginTop: 52, alignItems: 'center' }}
         >
           <DotRow>
-            {[0, 1, 2].map((_, i) => (
+            {[0, 1, lastPageIndex].map((_, i) => (
               <Dot active={i === page} />
             ))}
           </DotRow>
           <Button
-            onPress={page !== 2 ? () => setPage(page + 1) : () => {}}
+            onPress={page !== lastPageIndex ? () => setPage(page + 1) : () => {}}
             disabled={isNextDisabled[page]}
           >
-            {page === 2 ? 'Done' : 'Next'}
+            {page === lastPageIndex ? 'Done' : 'Next'}
           </Button>
         </View>
       </BoxInner>

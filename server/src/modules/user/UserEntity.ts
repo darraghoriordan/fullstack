@@ -41,6 +41,17 @@ export class Property {
 }
 
 @ObjectType()
+export class DevopsAccount {
+  @prop({ required: true })
+  @Field()
+  accessToken: string
+
+  @prop({ required: true })
+  @Field()
+  organisationName: string
+}
+
+@ObjectType()
 export class User extends Typegoose {
   @Field(type => ID)
   readonly _id: ObjectId
@@ -48,6 +59,10 @@ export class User extends Typegoose {
   @prop()
   @Field(type => Profile)
   profile: Profile
+
+  @prop()
+  @Field(type => DevopsAccount, { nullable: true })
+  devopsAccount?: DevopsAccount
 
   @prop()
   @Field(type => Plaid, { nullable: true })
