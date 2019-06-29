@@ -3,8 +3,6 @@ import { View, Text } from 'react-native'
 import styled from 'styled-components'
 import { useTransition, animated } from 'react-spring'
 import Input from '../../../components/Input'
-import AddressAutofillInput, { MapsPrediction } from './AddressAutofillInput'
-import PlaidLink from './PlaidLink'
 
 const PageWrapper = styled(View)`
   flex: 1;
@@ -26,27 +24,14 @@ const Title = styled(Text)`
   margin-bottom: 36px;
 `
 
-const AddressPage = (props: {
-  style: any
-  setSelectedItem: (item: MapsPrediction | null) => void
-}) => (
-  <animated.div style={props.style}>
-    <PageWrapper>
-      <Title>What is your address?</Title>
-      <AddressAutofillInput setSelectedItem={props.setSelectedItem} />
-      <View />
-    </PageWrapper>
-  </animated.div>
-)
-
-const RentAmountPage = (props: {
+const OrganisationNamePage = (props: {
   style: any
   value: string
   onChangeText: (text: string) => void
 }) => (
   <animated.div style={props.style}>
     <PageWrapper>
-      <Title>How much is rent?</Title>
+      <Title>What is your organisation name?</Title>
       <Input
         style={{ width: 240, alignItems: 'center' }}
         inputStyle={{
@@ -58,8 +43,8 @@ const RentAmountPage = (props: {
         }}
         value={props.value}
         onChangeText={text => props.onChangeText(text)}
-        keyboardType="numeric"
-        placeholder="$1000"
+        keyboardType="default"
+        placeholder="myorg"
         focusable
       />
       <View />
@@ -67,11 +52,29 @@ const RentAmountPage = (props: {
   </animated.div>
 )
 
-const ConnectBankPage = (props: { setPublicToken: (publicToken: string) => void; style: any }) => (
+const AccessCodePage = (props: {
+  style: any
+  value: string
+  onChangeText: (text: string) => void
+}) => (
   <animated.div style={props.style}>
     <PageWrapper>
-      <Title>Connect your bank account</Title>
-      <PlaidLink setPublicToken={props.setPublicToken} />
+      <Title>What is your access code?</Title>
+      <Input
+        style={{ width: 240, alignItems: 'center' }}
+        inputStyle={{
+          textAlign: 'center',
+          alignItems: 'center',
+          width: '100%',
+          height: 55,
+          borderRadius: 100,
+        }}
+        value={props.value}
+        onChangeText={text => props.onChangeText(text)}
+        keyboardType="default"
+        placeholder="abcdef-abcdef-abcdef-abcdef"
+        focusable
+      />
       <View />
     </PageWrapper>
   </animated.div>
@@ -79,18 +82,18 @@ const ConnectBankPage = (props: { setPublicToken: (publicToken: string) => void;
 
 interface OnboardPagesProps {
   page: number
-  rent: string
-  setRent: (text: string) => void
-  setSelectedItem: (item: MapsPrediction | null) => void
-  setPublicToken: (publicToken: string) => void
+  accessCode: string
+  organisationName: string
+  setOrganisationName: (text: string) => void
+  setAccessToken: (text: string) => void
 }
 
 const OnboardPages = ({
   page,
-  setSelectedItem,
-  rent,
-  setRent,
-  setPublicToken,
+  setAccessToken,
+  setOrganisationName,
+  accessCode,
+  organisationName,
 }: OnboardPagesProps) => {
   const transitions = useTransition(page, null, {
     initial: { opacity: 1, position: 'absolute', width: '100%', height: '100%', left: 0 },
@@ -104,11 +107,15 @@ const OnboardPages = ({
       {transitions.map(({ item, props }) => {
         switch (item) {
           case 0:
-            return <AddressPage setSelectedItem={setSelectedItem} style={props} />
+            return (
+              <OrganisationNamePage
+                value={organisationName}
+                onChangeText={setOrganisationName}
+                style={props}
+              />
+            )
           case 1:
-            return <RentAmountPage value={rent} onChangeText={setRent} style={props} />
-          case 2:
-            return <ConnectBankPage style={props} setPublicToken={setPublicToken} />
+            return <AccessCodePage value={accessCode} onChangeText={setAccessToken} style={props} />
           default:
             return null
         }

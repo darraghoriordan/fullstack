@@ -26,21 +26,6 @@ export class Plaid {
 }
 
 @ObjectType()
-export class Property {
-  @prop({ required: true })
-  @Field()
-  address: string
-
-  @prop({ required: true })
-  @Field()
-  placeId: string
-
-  @prop({ required: true })
-  @Field()
-  rentAmount: number
-}
-
-@ObjectType()
 export class DevopsAccount {
   @prop({ required: true })
   @Field()
@@ -67,10 +52,6 @@ export class User extends Typegoose {
   @prop()
   @Field(type => Plaid, { nullable: true })
   plaid?: Plaid
-
-  @prop()
-  @Field(type => Property, { nullable: true })
-  properties?: Property[]
 
   @prop({ required: true, enum: Role })
   @Field(type => Role)

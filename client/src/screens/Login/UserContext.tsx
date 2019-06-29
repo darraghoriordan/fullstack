@@ -41,7 +41,6 @@ export const UserProvider: React.FunctionComponent<{}> = props => {
 
     try {
       user = await accountsGraphQL.getUser()
-      console.log('!!!user', user)
     } catch (error) {
       console.error('There was an error logging in.', error)
     } finally {

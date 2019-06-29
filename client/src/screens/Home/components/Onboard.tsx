@@ -5,16 +5,11 @@ import styled from 'styled-components'
 import { useOnboardUserMutation } from '../../../generated/graphql'
 import Box from '../../../components/Box'
 import Button from '../../../components/Button'
-import { MapsPrediction } from './AddressAutofillInput'
 import OnboardPages from './OnboardPages'
 
 export const ONBOARD_USER = gql`
-  mutation OnboardUser(
-    $publicToken: String!
-    $property: PropertyInput!
-    $devopsAccount: DevopsAccountInput!
-  ) {
-    onboardUser(publicToken: $publicToken, property: $property)
+  mutation OnboardUser($devopsAccount: DevopsAccountInput!) {
+    onboardUser(devopsAccount: $devopsAccount)
   }
 `
 
@@ -45,48 +40,46 @@ const DotRow = styled(View)`
 
 const Onboard = (props: { done: () => void }) => {
   const onboardUser = useOnboardUserMutation()
-  const [selectedItem, setSelectedItem] = React.useState<MapsPrediction | null>(null)
-  const [publicToken, setPublicToken] = React.useState<string>('')
-  const [rent, setRent] = React.useState()
+  const [organisationName, setOrganisationName] = React.useState<string>('')
+  const [accessToken, setAccessToken] = React.useState<string>('')
   const [page, setPage] = React.useState(0)
-  const isNextDisabled = [!selectedItem || !selectedItem.place_id, !rent, !publicToken]
+  const isNextDisabled = [!organisationName, !accessToken]
 
-  const onPressDone = async (publicToken: string) => {
-    await setPublicToken(publicToken)
+  const onPressDone = async () => {
     await onboardUser({
       variables: {
-        publicToken,
-        devopsAccount: { accessToken: '', organisationName: '' },
-        property: {
-          address: selectedItem!.description,
-          placeId: selectedItem!.place_id,
-          rentAmount: parseInt(rent),
-        },
+        devopsAccount: { accessToken: accessToken, organisationName: organisationName },
       },
     })
     props.done()
   }
-  const lastPageIndex = 2
+  const lastPageIndex = 1
   return (
     <Box style={{ height: '75%' }}>
       <BoxInner>
         <OnboardPages
-          rent={rent}
+          organisationName={organisationName}
+          accessCode={accessToken}
           page={page}
-          setRent={setRent}
-          setSelectedItem={setSelectedItem}
-          setPublicToken={onPressDone}
+          setOrganisationName={setOrganisationName}
+          setAccessToken={setAccessToken}
         />
         <View
           style={{ position: 'relative', marginBottom: 40, marginTop: 52, alignItems: 'center' }}
         >
           <DotRow>
-            {[0, 1, lastPageIndex].map((_, i) => (
+            {[0, lastPageIndex].map((_, i) => (
               <Dot active={i === page} />
             ))}
           </DotRow>
           <Button
-            onPress={page !== lastPageIndex ? () => setPage(page + 1) : () => {}}
+            onPress={
+              page !== lastPageIndex
+                ? () => setPage(page + 1)
+                : () => {
+                    onPressDone()
+                  }
+            }
             disabled={isNextDisabled[page]}
           >
             {page === lastPageIndex ? 'Done' : 'Next'}

@@ -128,8 +128,7 @@ export type MutationAuthenticateArgs = {
 }
 
 export type MutationOnboardUserArgs = {
-  property: PropertyInput
-  publicToken: Scalars['String']
+  devopsAccount: DevopsAccountInput
 }
 
 export type MutationSetPlaidTokenArgs = {
@@ -151,19 +150,6 @@ export type Profile = {
 export type ProfileInput = {
   firstName: Scalars['String']
   lastName: Scalars['String']
-}
-
-export type Property = {
-  __typename?: 'Property'
-  address: Scalars['String']
-  placeId: Scalars['String']
-  rentAmount: Scalars['Float']
-}
-
-export type PropertyInput = {
-  address: Scalars['String']
-  placeId: Scalars['String']
-  rentAmount: Scalars['Float']
 }
 
 export type Query = {
@@ -216,7 +202,6 @@ export type User = {
   profile: Profile
   devopsAccount?: Maybe<DevopsAccount>
   plaid?: Maybe<Plaid>
-  properties?: Maybe<Array<Property>>
   roles: Array<Role>
   isOnboarded?: Maybe<Scalars['Boolean']>
   createdAt: Scalars['DateTime']
@@ -229,8 +214,6 @@ export type UserInput = {
   username?: Maybe<Scalars['String']>
 }
 export type OnboardUserMutationVariables = {
-  publicToken: Scalars['String']
-  property: PropertyInput
   devopsAccount: DevopsAccountInput
 }
 
@@ -246,12 +229,8 @@ export type MeQuery = { __typename?: 'Query' } & {
 }
 
 export const OnboardUserDocument = gql`
-  mutation OnboardUser(
-    $publicToken: String!
-    $property: PropertyInput!
-    $devopsAccount: DevopsAccountInput!
-  ) {
-    onboardUser(publicToken: $publicToken, property: $property)
+  mutation OnboardUser($devopsAccount: DevopsAccountInput!) {
+    onboardUser(devopsAccount: $devopsAccount)
   }
 `
 export type OnboardUserMutationFn = ReactApollo.MutationFn<

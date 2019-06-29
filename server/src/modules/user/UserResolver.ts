@@ -37,18 +37,6 @@ class CreateUserInput implements Partial<User> {
   profile: ProfileInput
 }
 
-@InputType()
-export class PropertyInput {
-  @Field(type => String)
-  address: string
-
-  @Field(type => String)
-  placeId: string
-
-  @Field(type => Number)
-  rentAmount: number
-}
-
 @Resolver(User)
 export default class UserResolver {
   private readonly service: UserService
@@ -78,17 +66,13 @@ export default class UserResolver {
 
   @Mutation(returns => Boolean)
   @Authorized()
-  async onboardUser(
-    @Arg('publicToken') publicToken: string,
-    @Arg('property') property: PropertyInput,
-    // @Arg('devopsAccount') devopsAccount: DevopsAccountInput,
-    @Ctx() ctx: Context
-  ) {
+  async onboardUser(@Arg('devopsAccount') devopsAccount: DevopsAccountInput, @Ctx() ctx: Context) {
     const user = await this.service.findOneById(ctx.userId)
 
-    // user.devopsAccount = devopsAccount
+    user.devopsAccount = devopsAccount
     user.isOnboarded = true
-    await user.save()
+    var model = await user.save()
+    return !model.errors
   }
 
   @Mutation(returns => Boolean)
