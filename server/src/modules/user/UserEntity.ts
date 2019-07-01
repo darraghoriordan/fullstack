@@ -15,17 +15,6 @@ export class Profile {
 }
 
 @ObjectType()
-export class Plaid {
-  @prop({ required: true })
-  @Field()
-  accessToken: string
-
-  @prop({ required: true })
-  @Field()
-  itemId: string
-}
-
-@ObjectType()
 export class DevopsAccount {
   @prop({ required: true })
   @Field()
@@ -48,10 +37,6 @@ export class User extends Typegoose {
   @prop()
   @Field(type => DevopsAccount, { nullable: true })
   devopsAccount?: DevopsAccount
-
-  @prop()
-  @Field(type => Plaid, { nullable: true })
-  plaid?: Plaid
 
   @prop({ required: true, enum: Role })
   @Field(type => Role)
