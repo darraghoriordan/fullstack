@@ -32,12 +32,12 @@ export type CreateUserInput = {
 export type DevopsAccount = {
   __typename?: 'DevopsAccount'
   accessToken: Scalars['String']
-  organisationName: Scalars['String']
+  organisationUrl: Scalars['String']
 }
 
 export type DevopsAccountInput = {
   accessToken: Scalars['String']
-  organisationName: Scalars['String']
+  organisationUrl: Scalars['String']
 }
 
 export type EmailRecord = {
@@ -74,7 +74,6 @@ export type Mutation = {
   logout?: Maybe<Scalars['Boolean']>
   authenticate?: Maybe<LoginResult>
   onboardUser: Scalars['Boolean']
-  setPlaidToken: Scalars['Boolean']
 }
 
 export type MutationCreateUserArgs = {
@@ -129,16 +128,6 @@ export type MutationAuthenticateArgs = {
 
 export type MutationOnboardUserArgs = {
   devopsAccount: DevopsAccountInput
-}
-
-export type MutationSetPlaidTokenArgs = {
-  publicToken: Scalars['String']
-}
-
-export type Plaid = {
-  __typename?: 'Plaid'
-  accessToken: Scalars['String']
-  itemId: Scalars['String']
 }
 
 export type Profile = {
@@ -201,7 +190,6 @@ export type User = {
   _id: Scalars['ID']
   profile: Profile
   devopsAccount?: Maybe<DevopsAccount>
-  plaid?: Maybe<Plaid>
   roles: Array<Role>
   isOnboarded?: Maybe<Scalars['Boolean']>
   createdAt: Scalars['DateTime']

@@ -16,23 +16,17 @@ scalar DateTime
 
 type DevopsAccount {
   accessToken: String!
-  organisationName: String!
+  organisationUrl: String!
 }
 
 input DevopsAccountInput {
   accessToken: String!
-  organisationName: String!
+  organisationUrl: String!
 }
 
 type Mutation {
   createUser(user: CreateUserInput!): ID!
   onboardUser(devopsAccount: DevopsAccountInput!): Boolean!
-  setPlaidToken(publicToken: String!): Boolean!
-}
-
-type Plaid {
-  accessToken: String!
-  itemId: String!
 }
 
 type Profile {
@@ -58,7 +52,6 @@ type User {
   _id: ID!
   profile: Profile!
   devopsAccount: DevopsAccount
-  plaid: Plaid
   roles: [Role!]!
   isOnboarded: Boolean
   createdAt: DateTime!

@@ -21,7 +21,7 @@ class DevopsAccountInput implements Partial<DevopsAccount> {
   accessToken: string
 
   @Field(type => String)
-  organisationName: string
+  organisationUrl: string
 }
 
 @InputType()

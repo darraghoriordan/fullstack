@@ -22,7 +22,7 @@ export class DevopsAccount {
 
   @prop({ required: true })
   @Field()
-  organisationName: string
+  organisationUrl: string
 }
 
 @ObjectType()

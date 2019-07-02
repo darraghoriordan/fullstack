@@ -40,15 +40,15 @@ const DotRow = styled(View)`
 
 const Onboard = (props: { done: () => void }) => {
   const onboardUser = useOnboardUserMutation()
-  const [organisationName, setOrganisationName] = React.useState<string>('')
+  const [organisationUrl, setOrganisationUrl] = React.useState<string>('')
   const [accessToken, setAccessToken] = React.useState<string>('')
   const [page, setPage] = React.useState(0)
-  const isNextDisabled = [!organisationName, !accessToken]
+  const isNextDisabled = [!organisationUrl, !accessToken]
 
   const onPressDone = async () => {
     await onboardUser({
       variables: {
-        devopsAccount: { accessToken: accessToken, organisationName: organisationName },
+        devopsAccount: { accessToken: accessToken, organisationUrl: organisationUrl },
       },
     })
     props.done()
@@ -58,10 +58,10 @@ const Onboard = (props: { done: () => void }) => {
     <Box style={{ height: '75%' }}>
       <BoxInner>
         <OnboardPages
-          organisationName={organisationName}
+          organisationUrl={organisationUrl}
           accessCode={accessToken}
           page={page}
-          setOrganisationName={setOrganisationName}
+          setOrganisationUrl={setOrganisationUrl}
           setAccessToken={setAccessToken}
         />
         <View

@@ -31,7 +31,7 @@ const OrganisationNamePage = (props: {
 }) => (
   <animated.div style={props.style}>
     <PageWrapper>
-      <Title>What is your organisation name?</Title>
+      <Title>What is your organisation url?</Title>
       <Input
         style={{ width: 240, alignItems: 'center' }}
         inputStyle={{
@@ -83,17 +83,17 @@ const AccessCodePage = (props: {
 interface OnboardPagesProps {
   page: number
   accessCode: string
-  organisationName: string
-  setOrganisationName: (text: string) => void
+  organisationUrl: string
+  setOrganisationUrl: (text: string) => void
   setAccessToken: (text: string) => void
 }
 
 const OnboardPages = ({
   page,
   setAccessToken,
-  setOrganisationName,
+  setOrganisationUrl,
   accessCode,
-  organisationName,
+  organisationUrl,
 }: OnboardPagesProps) => {
   const transitions = useTransition(page, null, {
     initial: { opacity: 1, position: 'absolute', width: '100%', height: '100%', left: 0 },
@@ -109,8 +109,8 @@ const OnboardPages = ({
           case 0:
             return (
               <OrganisationNamePage
-                value={organisationName}
-                onChangeText={setOrganisationName}
+                value={organisationUrl}
+                onChangeText={setOrganisationUrl}
                 style={props}
               />
             )

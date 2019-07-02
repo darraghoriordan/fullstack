@@ -20,4 +20,8 @@ export class DeployState {
   workItemTitle: string
   @Field()
   workItemUri: string
+  @Field()
+  buildNumer: string
+  @Field()
+  buildUri: string
 }
