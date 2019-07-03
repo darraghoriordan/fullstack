@@ -10,12 +10,6 @@ describe('The DevopsService', () => {
       const devopsService = new DevopsService()
       const firstProject = (await devopsService.getProjects(connection))[0]
       const result = await devopsService.getSimpleRecentDeployments(connection, firstProject.name)
-      // const result = await devopsService.getReleaseDefinitions(connection, firstProject.name)
-
-      // const result = await devopsService.getds(connection, firstProject.name)
-      //console.log(result.map(x => ({ name: x.releaseEnvironment.name, def: x.definitionEnvironmentId })))
-      // console.log(result.map(x => x.release.artifacts[1]));
-      console.log(result)
       expect(result.length).toBeGreaterThan(0)
     })
   })

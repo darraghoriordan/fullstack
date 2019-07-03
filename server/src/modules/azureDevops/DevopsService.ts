@@ -4,10 +4,12 @@ import { BuildApi } from 'azure-devops-node-api/BuildApi'
 import { CoreApi } from 'azure-devops-node-api/CoreApi'
 import { ReleaseApi } from 'azure-devops-node-api/ReleaseApi'
 import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
+import * as wit from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces'
 import { TeamProjectReference } from 'azure-devops-node-api/interfaces/CoreInterfaces'
 import { DeployState } from './DeployState'
 import configuration from './environmentConfiguration'
 import { ConfigItem } from './ConfigItem'
+import { WorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi'
 
 export class DevopsService {
   // const cloudReleasesDefinitioinId = 16
@@ -27,40 +29,46 @@ export class DevopsService {
 
   async getProjects(connection: azdev.WebApi): Promise<TeamProjectReference[]> {
     const projectApi: CoreApi = await connection.getCoreApi()
-    var projects = projectApi.getProjects()
+    let projects = projectApi.getProjects()
     return projects
-  }
-
-  async getRecentBuilds(connection: azdev.WebApi, projectName: string): Promise<bi.Build[]> {
-    const buildApi: BuildApi = await connection.getBuildApi()
-    const builds: bi.Build[] = await buildApi.getBuilds(projectName)
-    return builds
-  }
-
-  async mapToBuilds(devopsBuilds: bi.Build[]) {
-    return devopsBuilds.map(x => {
-      buildNumber: x.buildNumber
-    })
   }
 
   async getSimpleRecentDeployments(
     connection: azdev.WebApi,
     projectName: string
   ): Promise<DeployState[]> {
+    // gets the work items between deploys
+    //  https://<accountUrl>/<Project>/_apis/Release/releases/<ReleaseID>/workitems?baseReleaseId=<ReleaseToCompareAgainst>&%24top=250
+    const releaseApi: ReleaseApi = await connection.getReleaseApi()
+    const buildApi: BuildApi = await connection.getBuildApi()
+    const witApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
     const results = await Promise.all(
       configuration.map(async item => {
-        return this.mapToSimple(await this.getRecentDeployment(connection, projectName, item), item)
+        let deployment = await this.getRecentDeployment(releaseApi, projectName, item)
+        let releasedArtifact = deployment.release.artifacts.find(
+          x => x.alias === item.artifactAlias
+        )
+        let workItems = await releaseApi.getReleaseWorkItemsRefs(projectName, deployment.release.id)
+        let workItem: wit.WorkItem
+        if (workItems.length > 0) {
+          workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
+        }
+        let build = await buildApi.getBuild(
+          projectName,
+          parseInt(releasedArtifact.definitionReference.version.id)
+        )
+
+        return this.mapToSimple(deployment, item, releasedArtifact, build, workItem)
       })
     )
     return results.sort((a, b) => (a.order > b.order ? 1 : -1))
   }
 
   async getRecentDeployment(
-    connection: azdev.WebApi,
+    releaseApi: ReleaseApi,
     projectName: string,
     configItem: ConfigItem
   ): Promise<ri.Deployment> {
-    const releaseApi: ReleaseApi = await connection.getReleaseApi()
     const deployments: ri.Deployment[] = await releaseApi.getDeployments(
       projectName,
       configItem.releaseDefinitionId,
@@ -79,22 +87,25 @@ export class DevopsService {
 
     return deployments[0] // filteredResults;
   }
-  mapToSimple(devopsDeployment: ri.Deployment, configItem: ConfigItem): DeployState {
-    var releasedArtifcate = devopsDeployment.release.artifacts.find(
-      x => x.alias === configItem.artifactAlias
-    )
+  mapToSimple(
+    devopsDeployment: ri.Deployment,
+    configItem: ConfigItem,
+    releasedArtifact: ri.Artifact,
+    build: bi.Build,
+    workItem: wit.WorkItem
+  ): DeployState {
     var mappedDeploy: DeployState = {
       order: configItem.displayOrder,
       deployedOn: devopsDeployment.completedOn,
       buildNumer: devopsDeployment.release.name,
-      buildUri: devopsDeployment.release.url,
+      buildUri: build._links.web.href, // devopsDeployment.release.url,
       deployedBy: devopsDeployment.requestedFor.displayName,
       name: configItem.displayName,
-      workItemNumber: '',
-      workItemTitle: '',
-      workItemUri: '',
-      currentBranchUri: releasedArtifcate.definitionReference.artifactSourceVersionUrl.id,
-      currentBranch: releasedArtifcate.definitionReference.branch.name.substring(10),
+      workItemNumber: workItem ? workItem.id.toString() : '',
+      workItemTitle: workItem ? workItem.fields['System.Title'] : '',
+      workItemUri: workItem ? workItem.url : '',
+      currentBranchUri: releasedArtifact.definitionReference.artifactSourceVersionUrl.id,
+      currentBranch: releasedArtifact.definitionReference.branch.name.substring(10),
     }
     return mappedDeploy
   }
