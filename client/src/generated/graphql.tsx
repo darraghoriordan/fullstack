@@ -1,6 +1,6 @@
 import gql from 'graphql-tag'
-import * as ReactApollo from 'react-apollo'
 import * as ReactApolloHooks from 'react-apollo-hooks'
+import * as ReactApollo from 'react-apollo'
 export type Maybe<T> = T | null
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -27,6 +27,21 @@ export type CreateUserInput = {
   email?: Maybe<Scalars['String']>
   password?: Maybe<Scalars['String']>
   profile: ProfileInput
+}
+
+export type DeployState = {
+  __typename?: 'DeployState'
+  order: Scalars['Float']
+  name: Scalars['String']
+  currentBranch: Scalars['String']
+  currentBranchUri: Scalars['String']
+  deployedOn: Scalars['DateTime']
+  deployedBy: Scalars['String']
+  workItemNumber: Scalars['String']
+  workItemTitle: Scalars['String']
+  workItemUri: Scalars['String']
+  buildNumer: Scalars['String']
+  buildUri: Scalars['String']
 }
 
 export type DevopsAccount = {
@@ -146,6 +161,7 @@ export type Query = {
   twoFactorSecret?: Maybe<TwoFactorSecretKey>
   getUser?: Maybe<User>
   me: User
+  deployStates: Array<DeployState>
 }
 
 export enum Role {
@@ -201,6 +217,27 @@ export type UserInput = {
   email?: Maybe<Scalars['String']>
   username?: Maybe<Scalars['String']>
 }
+export type DeployStatesQueryVariables = {}
+
+export type DeployStatesQuery = { __typename?: 'Query' } & {
+  deployStates: Array<
+    { __typename?: 'DeployState' } & Pick<
+      DeployState,
+      | 'order'
+      | 'name'
+      | 'currentBranch'
+      | 'currentBranchUri'
+      | 'deployedOn'
+      | 'deployedBy'
+      | 'workItemNumber'
+      | 'workItemTitle'
+      | 'workItemUri'
+      | 'buildNumer'
+      | 'buildUri'
+    >
+  >
+}
+
 export type OnboardUserMutationVariables = {
   devopsAccount: DevopsAccountInput
 }
@@ -216,6 +253,32 @@ export type MeQuery = { __typename?: 'Query' } & {
     }
 }
 
+export const DeployStatesDocument = gql`
+  query DeployStates {
+    deployStates {
+      order
+      name
+      currentBranch
+      currentBranchUri
+      deployedOn
+      deployedBy
+      workItemNumber
+      workItemTitle
+      workItemUri
+      buildNumer
+      buildUri
+    }
+  }
+`
+
+export function useDeployStatesQuery(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<DeployStatesQueryVariables>
+) {
+  return ReactApolloHooks.useQuery<DeployStatesQuery, DeployStatesQueryVariables>(
+    DeployStatesDocument,
+    baseOptions
+  )
+}
 export const OnboardUserDocument = gql`
   mutation OnboardUser($devopsAccount: DevopsAccountInput!) {
     onboardUser(devopsAccount: $devopsAccount)
