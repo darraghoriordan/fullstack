@@ -44,6 +44,15 @@ export type DeployState = {
   buildUri: Scalars['String']
 }
 
+export type DeployStateRequest = {
+  displayOrder: Scalars['Float']
+  displayName: Scalars['String']
+  releaseEnvironmentName: Scalars['String']
+  releaseDefinitionId: Scalars['Float']
+  definitionEnvironmentId: Scalars['Float']
+  artifactAlias: Scalars['String']
+}
+
 export type DevopsAccount = {
   __typename?: 'DevopsAccount'
   accessToken: Scalars['String']
@@ -162,6 +171,11 @@ export type Query = {
   getUser?: Maybe<User>
   me: User
   deployStates: Array<DeployState>
+  deployState: DeployState
+}
+
+export type QueryDeployStateArgs = {
+  deployStateRequest: DeployStateRequest
 }
 
 export enum Role {

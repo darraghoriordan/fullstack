@@ -2,6 +2,25 @@ import * as React from 'react'
 import { View } from 'react-native'
 import { useDeployStatesQuery } from '../../../generated/graphql'
 import { distanceInWordsToNow } from 'date-fns'
+import gql from 'graphql-tag'
+
+export const GET_ALL_DEPLOYSTATES = gql`
+  query DeployStates {
+    deployStates {
+      order
+      name
+      currentBranch
+      currentBranchUri
+      deployedOn
+      deployedBy
+      workItemNumber
+      workItemTitle
+      workItemUri
+      buildNumer
+      buildUri
+    }
+  }
+`
 
 const Dashboard = () => {
   const { data, loading } = useDeployStatesQuery()
@@ -22,7 +41,7 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {data.deployStates.map(element => (
+            {(data.deployStates as any[]).map(element => (
               <tr key={element.name}>
                 <td>{element.name}</td>
                 <td>

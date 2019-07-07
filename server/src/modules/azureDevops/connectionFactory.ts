@@ -1,5 +1,5 @@
 import * as azdev from 'azure-devops-node-api'
-import { User, DevopsAccount } from '../user/UserEntity'
+import { DevopsAccount } from '../user/UserEntity'
 
 export const getConnection = (devopsAccount: DevopsAccount): azdev.WebApi => {
   let token: string = devopsAccount.accessToken

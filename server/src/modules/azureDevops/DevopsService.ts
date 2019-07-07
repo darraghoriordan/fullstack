@@ -32,7 +32,55 @@ export class DevopsService {
     let projects = projectApi.getProjects()
     return projects
   }
+  async getSingleDeployment(
+    connection: azdev.WebApi,
+    projectName: string,
+    environmentConfiguration: ConfigItem
+  ): Promise<DeployState> {
+    const releaseApi: ReleaseApi = await connection.getReleaseApi()
+    const buildApi: BuildApi = await connection.getBuildApi()
+    const witApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
+    return await this.getDeploymentData(
+      projectName,
+      environmentConfiguration,
+      releaseApi,
+      witApi,
+      buildApi
+    )
+  }
 
+  async getDeploymentData(
+    projectName: string,
+    environmentConfiguration: ConfigItem,
+    releaseApi: ReleaseApi,
+    witApi: WorkItemTrackingApi,
+    buildApi: BuildApi
+  ): Promise<DeployState> {
+    let deployment = await this.getRecentDeployment(
+      releaseApi,
+      projectName,
+      environmentConfiguration
+    )
+    let releasedArtifact = deployment.release.artifacts.find(
+      x => x.alias === environmentConfiguration.artifactAlias
+    )
+    let workItems = await releaseApi.getReleaseWorkItemsRefs(
+      projectName,
+      deployment.release.id,
+      deployment.release.id - 1
+    )
+    console.log(workItems)
+    let workItem: wit.WorkItem
+    if (workItems.length > 0) {
+      workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
+    }
+    let build = await buildApi.getBuild(
+      projectName,
+      parseInt(releasedArtifact.definitionReference.version.id)
+    )
+
+    return this.mapToSimple(deployment, environmentConfiguration, releasedArtifact, build, workItem)
+  }
   async getSimpleRecentDeployments(
     connection: azdev.WebApi,
     projectName: string
@@ -44,21 +92,7 @@ export class DevopsService {
     const witApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
     const results = await Promise.all(
       configuration.map(async item => {
-        let deployment = await this.getRecentDeployment(releaseApi, projectName, item)
-        let releasedArtifact = deployment.release.artifacts.find(
-          x => x.alias === item.artifactAlias
-        )
-        let workItems = await releaseApi.getReleaseWorkItemsRefs(projectName, deployment.release.id)
-        let workItem: wit.WorkItem
-        if (workItems.length > 0) {
-          workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
-        }
-        let build = await buildApi.getBuild(
-          projectName,
-          parseInt(releasedArtifact.definitionReference.version.id)
-        )
-
-        return this.mapToSimple(deployment, item, releasedArtifact, build, workItem)
+        return await this.getDeploymentData(projectName, item, releaseApi, witApi, buildApi)
       })
     )
     return results.sort((a, b) => (a.order > b.order ? 1 : -1))

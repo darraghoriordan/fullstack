@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { View, Text, Dimensions } from 'react-native'
-// import gql from 'graphql-tag'
+import gql from 'graphql-tag'
 import styled from 'styled-components'
 import { useMeQuery } from '../../generated/graphql'
 import { SidebarContext } from '../../components/MainLayout'
@@ -9,21 +9,21 @@ import Onboard from './components/Onboard'
 
 const { width } = Dimensions.get('window')
 
-// export const GET_USER = gql`
-//   query Me {
-//     me {
-//       _id
-//       profile {
-//         firstName
-//         lastName
-//       }
-//       emails {
-//         address
-//       }
-//       isOnboarded
-//     }
-//   }
-// `
+export const GET_USER = gql`
+  query Me {
+    me {
+      _id
+      profile {
+        firstName
+        lastName
+      }
+      emails {
+        address
+      }
+      isOnboarded
+    }
+  }
+`
 
 const Wrapper = styled(View)<{ sidebarOpen: boolean }>`
   flex: 1;
@@ -42,7 +42,6 @@ const Title = styled(Text)`
   line-height: 47px;
   margin-bottom: 60px;
 `
-
 const Home = () => {
   const { data, loading, refetch } = useMeQuery()
 

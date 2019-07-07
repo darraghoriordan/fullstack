@@ -28,6 +28,15 @@ type DeployState {
   buildUri: String!
 }
 
+input DeployStateRequest {
+  displayOrder: Float!
+  displayName: String!
+  releaseEnvironmentName: String!
+  releaseDefinitionId: Float!
+  definitionEnvironmentId: Float!
+  artifactAlias: String!
+}
+
 type DevopsAccount {
   accessToken: String!
   organisationUrl: String!
@@ -56,6 +65,7 @@ input ProfileInput {
 type Query {
   me: User!
   deployStates: [DeployState!]!
+  deployState(deployStateRequest: DeployStateRequest!): DeployState!
 }
 
 enum Role {
