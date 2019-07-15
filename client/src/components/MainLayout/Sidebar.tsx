@@ -3,7 +3,6 @@ import { View } from 'react-native'
 import styled from 'styled-components'
 // import logoSmall from '../../assets/images/logo-small.svg'
 import { Link } from '../Router'
-import Button, { Variants as ButtonVariants } from '../Button'
 import SidebarItem from './SidebarItem'
 import dashbaordIcon from '../../assets/images/icons/dashboard.svg'
 import settingsIcon from '../../assets/images/icons/settings.svg'
@@ -40,16 +39,14 @@ const Sidebar = ({ open }: SidebarProps) => (
     </Link>
     <View style={{ marginRight: 40 }}>
       <SidebarItem to="/" active icon={dashbaordIcon}>
-        Dashboard
+        Test Environments
+      </SidebarItem>
+      <SidebarItem to="/production" active icon={dashbaordIcon}>
+        Production
       </SidebarItem>
       <SidebarItem to="/settings" icon={settingsIcon}>
         Settings
       </SidebarItem>
-    </View>
-    <View style={{ marginBottom: 35 }}>
-      <Button onPress={() => {}} style={{ width: 200 }} variant={ButtonVariants.primary}>
-        Pay my Rent
-      </Button>
     </View>
   </Wrapper>
 )

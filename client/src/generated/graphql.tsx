@@ -258,6 +258,27 @@ export type OnboardUserMutationVariables = {
 
 export type OnboardUserMutation = { __typename?: 'Mutation' } & Pick<Mutation, 'onboardUser'>
 
+export type GetDeployStateQueryVariables = {
+  deployStateRequest: DeployStateRequest
+}
+
+export type GetDeployStateQuery = { __typename?: 'Query' } & {
+  deployState: { __typename?: 'DeployState' } & Pick<
+    DeployState,
+    | 'order'
+    | 'name'
+    | 'currentBranch'
+    | 'currentBranchUri'
+    | 'deployedOn'
+    | 'deployedBy'
+    | 'workItemNumber'
+    | 'workItemTitle'
+    | 'workItemUri'
+    | 'buildNumer'
+    | 'buildUri'
+  >
+}
+
 export type MeQueryVariables = {}
 
 export type MeQuery = { __typename?: 'Query' } & {
@@ -311,6 +332,32 @@ export function useOnboardUserMutation(
 ) {
   return ReactApolloHooks.useMutation<OnboardUserMutation, OnboardUserMutationVariables>(
     OnboardUserDocument,
+    baseOptions
+  )
+}
+export const GetDeployStateDocument = gql`
+  query GetDeployState($deployStateRequest: DeployStateRequest!) {
+    deployState(deployStateRequest: $deployStateRequest) {
+      order
+      name
+      currentBranch
+      currentBranchUri
+      deployedOn
+      deployedBy
+      workItemNumber
+      workItemTitle
+      workItemUri
+      buildNumer
+      buildUri
+    }
+  }
+`
+
+export function useGetDeployStateQuery(
+  baseOptions?: ReactApolloHooks.QueryHookOptions<GetDeployStateQueryVariables>
+) {
+  return ReactApolloHooks.useQuery<GetDeployStateQuery, GetDeployStateQueryVariables>(
+    GetDeployStateDocument,
     baseOptions
   )
 }

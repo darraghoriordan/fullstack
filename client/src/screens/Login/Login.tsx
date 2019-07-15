@@ -6,8 +6,6 @@ import TabBox, { Tabs } from './components/TabBox'
 import { useUserContext } from '../../screens/Login/UserContext'
 import LoginForm from './components/LoginForm'
 import SignupForm from './components/SignupForm'
-import LinkToOtherLogin from './components/LinkToOtherLogin'
-import { useIsLandlord } from '../../utils/hooks'
 
 const Wrapper = styled(View)`
   min-height: 100vh;
@@ -47,34 +45,30 @@ export const FormRowWrapper = styled(View)`
 `
 
 const Login = (props: any) => {
-  const isLandlord = useIsLandlord(props.location)
-  const path = isLandlord
-    ? props.location.pathname.substring('/landlord'.length)
-    : props.location.pathname
+  const path = props.location.pathname
   const { logIn, signUp } = useUserContext()
   return (
     <Wrapper>
       <LogoWrapper>{/* <Logo source={{ uri: logo }} /> */}</LogoWrapper>
       <View style={{ width: 600, height: 500 }}>
-        <TabBox activeTab={path} isLandlord={isLandlord}>
+        <TabBox activeTab={path}>
           {path === Tabs.login ? (
             <LoginForm
               onSubmit={async (email, password) => {
-                await logIn(email, password, isLandlord)
+                await logIn(email, password)
                 props.history.push('/')
               }}
             />
           ) : (
             <SignupForm
               onSubmit={async args => {
-                await signUp({ ...args, isLandlord })
+                await signUp({ ...args })
                 props.history.push('/')
               }}
             />
           )}
         </TabBox>
       </View>
-      <LinkToOtherLogin isLandlord={isLandlord} />
     </Wrapper>
   )
 }

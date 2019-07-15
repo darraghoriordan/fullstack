@@ -11,14 +11,8 @@ interface UserContext {
   userState: UserState
   setUserState: (userState: UserState) => void
   getUser: () => void
-  signUp: (args: {
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-    isLandlord: boolean
-  }) => void
-  logIn: (email: string, password: string, isLandlord: boolean) => void
+  signUp: (args: { firstName: string; lastName: string; email: string; password: string }) => void
+  logIn: (email: string, password: string) => void
   logOut: () => void
 }
 
@@ -58,7 +52,6 @@ export const UserProvider: React.FunctionComponent<{}> = props => {
     lastName: string
     email: string
     password: string
-    isLandlord: boolean
   }) => {
     const { firstName, lastName, email, password } = args
     await accountsPassword.createUser({
