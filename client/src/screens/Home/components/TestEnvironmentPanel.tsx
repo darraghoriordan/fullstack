@@ -2,6 +2,8 @@ import { View } from 'react-native'
 import gql from 'graphql-tag'
 import { useGetDeployStateQuery } from '../../../generated/graphql'
 import { distanceInWordsToNow } from 'date-fns'
+import * as React from 'react'
+import styled from 'styled-components'
 
 export const GET_SINGLE_DEPLOY_STATE = gql`
   query GetDeployState($deployStateRequest: DeployStateRequest!) {
@@ -20,50 +22,69 @@ export const GET_SINGLE_DEPLOY_STATE = gql`
     }
   }
 `
+interface TestEnvironmentPanelProps {
+  displayOrder: number
+  displayName: string
+  releaseEnvironmentName: string
+  releaseDefinitionId: number
+  definitionEnvironmentId: number
+  artifactAlias: string
+}
 
-const TestEnvironmentPanel = () => {
-  const { data, loading } = useGetDeployStateQuery()
+const TestEnvironmentContainer = styled(View)`
+  width: 100%;
+  margin: 10px;
+  flex: 1 1 calc(33.33% - 20px);
+`
+
+const TestEnvironmentPanel = ({
+  displayOrder,
+  displayName,
+  releaseEnvironmentName,
+  releaseDefinitionId,
+  definitionEnvironmentId,
+  artifactAlias,
+}: TestEnvironmentPanelProps) => {
+  const { data, loading } = useGetDeployStateQuery({
+    variables: {
+      deployStateRequest: {
+        displayOrder: displayOrder,
+        displayName: displayName,
+        releaseEnvironmentName: releaseEnvironmentName,
+        releaseDefinitionId: releaseDefinitionId,
+        definitionEnvironmentId: definitionEnvironmentId,
+        artifactAlias: artifactAlias,
+      },
+    },
+  })
 
   return loading ? (
     <span>Loading...</span>
   ) : (
-    <View>
-      {data &&
-        // <table>
-        //   <thead>
-        //     <tr>
-        //       <th>Environment</th>
-        //       <th>Current Branch</th>
-        //       <th>Deployed By</th>
-        //       <th>Deployed</th>
-        //       <th>Work Item</th>
-        //     </tr>
-        //   </thead>
-        //   <tbody>
-        //     {(data.deployStates as any[]).map(element => (
-        //       <tr key={element.name}>
-        //         <td>{element.name}</td>
-        //         <td>
-        //           <a href={element.currentBranchUri}>{element.currentBranch}</a>
-        //         </td>
-        //         <td>{element.deployedBy}</td>
-        //         <td>{distanceInWordsToNow(new Date(element.deployedOn)) + ' ago'}</td>
-        //         <td>
-        //           (
-        //           <a title={element.workItemTitle} href={element.workItemUri}>
-        //             {element.workItemNumber}
-        //           </a>
-        //           ) {truncateTitle(element.workItemTitle, 30)}
-        //         </td>
-        //       </tr>
-        //     ))}
-        //   </tbody>
-        // </table>
-        true}
-    </View>
+    <TestEnvironmentContainer>
+      {data && (
+        <div>
+          <h2>{data.deployState.name}</h2>
+          <p>{data.deployState.deployedOn}</p>
+          <p>{distanceInWordsToNow(new Date(data.deployState.deployedOn)) + ' ago'}</p>
+          <p>{truncateTitle(data.deployState.workItemTitle, 30)}</p>
+        </div>
+      )}
+    </TestEnvironmentContainer>
   )
 }
-
+// <td>
+//   <a href={element.currentBranchUri}>{element.currentBranch}</a>
+// </td>
+// <td>{element.deployedBy}</td>
+//
+// <td>
+//   (
+//   <a title={element.workItemTitle} href={element.workItemUri}>
+//     {element.workItemNumber}
+//   </a>
+//   ) {truncateTitle(element.workItemTitle, 30)}
+// </td>
 const truncateTitle = (fullTitle: string, length: number) => {
   if (fullTitle.length > length) {
     return fullTitle.substring(0, length - 1) + '...'

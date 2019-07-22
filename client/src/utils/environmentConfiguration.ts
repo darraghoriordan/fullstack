@@ -1,6 +1,6 @@
 import { DeployStateRequest } from '../generated/graphql'
 
-const configuration: DeployStateRequest[] = [
+const environmentConfiguration: DeployStateRequest[] = [
   {
     displayOrder: 1,
     displayName: 'Test Slot 1',
@@ -221,4 +221,4 @@ const configuration: DeployStateRequest[] = [
   },
 ]
 
-export default configuration
+export default environmentConfiguration

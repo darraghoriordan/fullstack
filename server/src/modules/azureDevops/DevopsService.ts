@@ -69,7 +69,7 @@ export class DevopsService {
       deployment.release.id,
       deployment.release.id - 1
     )
-    console.log(workItems)
+
     let workItem: wit.WorkItem
     if (workItems.length > 0) {
       workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
