@@ -41,8 +41,8 @@ const Sidebar = ({ open }: SidebarProps) => (
       <SidebarItem to="/" active icon={dashbaordIcon}>
         Test Environments
       </SidebarItem>
-      <SidebarItem to="/production" active icon={dashbaordIcon}>
-        Production
+      <SidebarItem to="/staging" active icon={dashbaordIcon}>
+        Staging
       </SidebarItem>
       <SidebarItem to="/settings" icon={settingsIcon}>
         Settings

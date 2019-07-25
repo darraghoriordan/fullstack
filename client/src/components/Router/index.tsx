@@ -4,6 +4,7 @@ import MainLayout from '../MainLayout'
 import Login from '../../screens/Login'
 import Home from '../../screens/Home'
 import { useUserContext } from '../../screens/Login/UserContext'
+import Staging from '../../screens/Home/components/Staging'
 
 export default () => {
   const { userState, getUser } = useUserContext()
@@ -26,6 +27,7 @@ export default () => {
             render={() => (
               <Switch>
                 <Route path="/" exact component={Home} />
+                <Route path="/staging" exact component={Staging} />
                 {/* <Route path="/policies" component={Policies} /> */}
                 <Route path="*" render={() => <Redirect to="/" />} />
               </Switch>

@@ -17,6 +17,9 @@ export class DevopsService {
   // const testSlotsBuildDefinitionId = 109
   // const cloudBuildsDefinitionId = 94
 
+  // current test environment data
+  // slot name, status, user, date, release (# and link), work item (number and link), description (work item title)
+
   // put a build on a test environment
   // put a build on staging
   // put a build on production test
@@ -32,6 +35,7 @@ export class DevopsService {
     let projects = projectApi.getProjects()
     return projects
   }
+
   async getSingleDeployment(
     connection: azdev.WebApi,
     projectName: string,
@@ -61,13 +65,28 @@ export class DevopsService {
       projectName,
       environmentConfiguration
     )
+    let productionRelease = await releaseApi.getReleases(
+      projectName,
+      16,
+      140,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      1
+    )
+
     let releasedArtifact = deployment.release.artifacts.find(
       x => x.alias === environmentConfiguration.artifactAlias
     )
+
     let workItems = await releaseApi.getReleaseWorkItemsRefs(
       projectName,
       deployment.release.id,
-      deployment.release.id - 1
+      productionRelease[0].id
     )
 
     let workItem: wit.WorkItem
@@ -80,6 +99,20 @@ export class DevopsService {
     )
 
     return this.mapToSimple(deployment, environmentConfiguration, releasedArtifact, build, workItem)
+  }
+  async getCurrentStagingRelease(
+    connection: azdev.WebApi,
+    projectName: string,
+    releaseDefinitionId: number
+  ) {
+    const releaseApi: ReleaseApi = await connection.getReleaseApi()
+    var statusFiler = ri.ReleaseStatus.Active
+    var last20Releases = releaseApi.getReleases(projectName, releaseDefinitionId, null, null, null)
+  }
+
+  async getArelease(connection: azdev.WebApi, projectName: string, releaseId: number) {
+    const releaseApi: ReleaseApi = await connection.getReleaseApi()
+    return await releaseApi.getRelease(projectName, releaseId)
   }
   async getSimpleRecentDeployments(
     connection: azdev.WebApi,

@@ -9,6 +9,7 @@ import { authChecker } from './modules/user/authChecker'
 import { setUpAccounts } from './modules/user/accounts'
 import { TypegooseMiddleware } from './middleware/typegoose'
 import DeployStateResolver from './modules/azureDevops/DeployStateResolver'
+import StagingEnvironmentStateResolver from './modules/azureDevops/StagingEnvironmentResolver'
 ;(async () => {
   const mongooseConnection = await connect(
     `mongodb://${MONGO_HOST || 'localhost'}:27017/${DB_NAME}`,
@@ -17,7 +18,7 @@ import DeployStateResolver from './modules/azureDevops/DeployStateResolver'
   const { accountsGraphQL, accountsServer } = setUpAccounts(mongooseConnection.connection)
 
   const typeGraphqlSchema = await buildSchema({
-    resolvers: [UserResolver, DeployStateResolver],
+    resolvers: [UserResolver, DeployStateResolver, StagingEnvironmentStateResolver],
     globalMiddlewares: [TypegooseMiddleware],
     // scalarsMap: [{ type: ObjectId, scalar: ObjectIdScalar }],
     validate: false,

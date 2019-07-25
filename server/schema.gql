@@ -66,11 +66,35 @@ type Query {
   me: User!
   deployStates: [DeployState!]!
   deployState(deployStateRequest: DeployStateRequest!): DeployState!
+  stagingEnvironmentState(
+    stagingEnvironmentStateRequest: StagingEnvironmentStateRequest!
+  ): StagingEnvironmentState!
 }
 
 enum Role {
   User
   Admin
+}
+
+type StagingEnvironmentState {
+  order: Float!
+  name: String!
+  currentBranch: String!
+  currentBranchUri: String!
+  deployedOn: DateTime!
+  deployedBy: String!
+  workItemNumber: String!
+  workItemTitle: String!
+  workItemUri: String!
+  buildNumer: String!
+  buildUri: String!
+}
+
+input StagingEnvironmentStateRequest {
+  releaseEnvironmentName: String!
+  releaseDefinitionId: Float!
+  definitionEnvironmentId: Float!
+  artifactAlias: String!
 }
 
 type User {

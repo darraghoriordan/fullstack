@@ -36,7 +36,9 @@ const TestEnvironmentContainer = styled(View)`
   margin: 10px;
   flex: 1 1 calc(33.33% - 20px);
 `
-
+const OverflowContainer = styled.div`
+  overflow-y: auto;
+`
 const TestEnvironmentPanel = ({
   displayOrder,
   displayName,
@@ -59,16 +61,28 @@ const TestEnvironmentPanel = ({
   })
 
   return loading ? (
-    <span>Loading...</span>
+    <TestEnvironmentContainer>
+      <h2>{displayName}</h2>
+      <span>Loading...</span>
+    </TestEnvironmentContainer>
   ) : (
     <TestEnvironmentContainer>
       {data && (
-        <div>
+        <OverflowContainer>
           <h2>{data.deployState.name}</h2>
-          <p>{data.deployState.deployedOn}</p>
+          <p>
+            <a href={data.deployState.buildUri}>{data.deployState.buildNumer}</a> by{' '}
+            {data.deployState.deployedBy}
+          </p>
           <p>{distanceInWordsToNow(new Date(data.deployState.deployedOn)) + ' ago'}</p>
-          <p>{truncateTitle(data.deployState.workItemTitle, 30)}</p>
-        </div>
+          <p>
+            see branch{' '}
+            <a href={data.deployState.currentBranchUri}>{data.deployState.currentBranch}</a>
+          </p>
+          <p></p>
+          <p>{data.deployState.workItemNumber}</p>
+          <p>{data.deployState.workItemUri}</p>
+        </OverflowContainer>
       )}
     </TestEnvironmentContainer>
   )
@@ -85,12 +99,12 @@ const TestEnvironmentPanel = ({
 //   </a>
 //   ) {truncateTitle(element.workItemTitle, 30)}
 // </td>
-const truncateTitle = (fullTitle: string, length: number) => {
-  if (fullTitle.length > length) {
-    return fullTitle.substring(0, length - 1) + '...'
-  }
+// const truncateTitle = (fullTitle: string, length: number) => {
+//   if (fullTitle.length > length) {
+//     return fullTitle.substring(0, length - 1) + '...'
+//   }
 
-  return fullTitle
-}
+//   return fullTitle
+// }
 
 export default TestEnvironmentPanel

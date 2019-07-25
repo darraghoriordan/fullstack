@@ -112,7 +112,7 @@ const environmentConfiguration: DeployStateRequest[] = [
     displayName: 'Test Slot 14',
     releaseEnvironmentName: 'New Test14 CI',
     releaseDefinitionId: 21,
-    definitionEnvironmentId: 276,
+    definitionEnvironmentId: 278,
     artifactAlias: '[TestSlot] CloudApp',
   },
   {
