@@ -1,9 +1,10 @@
 import { Resolver, Query, Authorized, Ctx, InputType, Field, Arg } from 'type-graphql'
 import { DeployState } from './DeployState'
-import { DevopsService } from './DevopsService'
 import { Context } from 'vm'
 import { getConnection } from './connectionFactory'
 import { UserService } from '../user/UserService'
+import { TestEnvironmentService } from './TestEnvironmentService'
+import ProjectService from './ProjectService'
 
 @InputType()
 class DeployStateRequest {
@@ -23,32 +24,16 @@ class DeployStateRequest {
 
 @Resolver(DeployState)
 export default class DeployStateResolver {
-  private readonly service: DevopsService
+  private readonly testEnvironmentService: TestEnvironmentService
   private readonly userService: UserService
+  private readonly projectService: ProjectService
 
   constructor() {
-    this.service = new DevopsService()
+    this.testEnvironmentService = new TestEnvironmentService()
     this.userService = new UserService()
+    this.projectService = new ProjectService()
   }
 
-  @Query(returns => [DeployState])
-  @Authorized()
-  async deployStates(@Ctx() ctx: Context) {
-    if (ctx && ctx.userId) {
-      const user = await this.userService.findOneById(ctx.userId)
-      const connection = getConnection(user.devopsAccount)
-      const firstProject = await this.service.getProjects(connection)
-
-      const results = await this.service.getSimpleRecentDeployments(
-        connection,
-        firstProject[0].name
-      )
-
-      return results
-    }
-
-    return []
-  }
   @Query(returns => DeployState)
   @Authorized()
   async deployState(
@@ -59,11 +44,11 @@ export default class DeployStateResolver {
       const user = await this.userService.findOneById(ctx.userId)
       const connection = getConnection(user.devopsAccount)
 
-      const firstProject = await this.service.getProjects(connection) //[0]
+      const firstProject = await this.projectService.getFirstProject(connection)
 
-      const result = await this.service.getSingleDeployment(
+      const result = await this.testEnvironmentService.getSingleDeployment(
         connection,
-        firstProject[0].name,
+        firstProject.name,
         deployStateRequest
       )
 

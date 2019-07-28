@@ -1,41 +1,15 @@
 import * as azdev from 'azure-devops-node-api'
 import * as bi from 'azure-devops-node-api/interfaces/BuildInterfaces'
 import { BuildApi } from 'azure-devops-node-api/BuildApi'
-import { CoreApi } from 'azure-devops-node-api/CoreApi'
 import { ReleaseApi } from 'azure-devops-node-api/ReleaseApi'
 import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import * as wit from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces'
-import { TeamProjectReference } from 'azure-devops-node-api/interfaces/CoreInterfaces'
 import { DeployState } from './DeployState'
-import configuration from './environmentConfiguration'
 import { ConfigItem } from './ConfigItem'
 import { WorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi'
+import logger from '../logging/logger'
 
-export class DevopsService {
-  // const cloudReleasesDefinitioinId = 16
-  // const testSlotsReleasesDefinitionId = 21
-  // const testSlotsBuildDefinitionId = 109
-  // const cloudBuildsDefinitionId = 94
-
-  // current test environment data
-  // slot name, status, user, date, release (# and link), work item (number and link), description (work item title)
-
-  // put a build on a test environment
-  // put a build on staging
-  // put a build on production test
-  // put a build on production
-  // given a release def id
-  // select a pipeline
-  // pipeline to deploy to: New Test01 CI
-  // artifact to deploy
-  // then control the steps of the deploy
-
-  async getProjects(connection: azdev.WebApi): Promise<TeamProjectReference[]> {
-    const projectApi: CoreApi = await connection.getCoreApi()
-    let projects = projectApi.getProjects()
-    return projects
-  }
-
+export class TestEnvironmentService {
   async getSingleDeployment(
     connection: azdev.WebApi,
     projectName: string,
@@ -60,12 +34,12 @@ export class DevopsService {
     witApi: WorkItemTrackingApi,
     buildApi: BuildApi
   ): Promise<DeployState> {
-    let deployment = await this.getRecentDeployment(
+    let deploymentPromise = this.getRecentDeployment(
       releaseApi,
       projectName,
       environmentConfiguration
     )
-    let productionRelease = await releaseApi.getReleases(
+    let productionReleasePromise = releaseApi.getReleases(
       projectName,
       16,
       140,
@@ -78,57 +52,52 @@ export class DevopsService {
       null,
       1
     )
-
+    logger.profile('DEP and RELEASE')
+    let [deployment, productionRelease] = await Promise.all([
+      deploymentPromise,
+      productionReleasePromise,
+    ])
+    logger.profile('DEP and RELEASE')
     let releasedArtifact = deployment.release.artifacts.find(
       x => x.alias === environmentConfiguration.artifactAlias
     )
 
-    let workItems = await releaseApi.getReleaseWorkItemsRefs(
+    let workItemsPromise = releaseApi.getReleaseWorkItemsRefs(
       projectName,
       deployment.release.id,
       productionRelease[0].id
     )
-
+    let buildPromise = buildApi.getBuild(
+      projectName,
+      parseInt(releasedArtifact.definitionReference.version.id)
+    )
+    logger.profile('WI and BUILD')
+    let [workItems, build] = await Promise.all([workItemsPromise, buildPromise])
+    logger.profile('WI and BUILD')
     let workItem: wit.WorkItem
     if (workItems.length > 0) {
       workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
     }
-    let build = await buildApi.getBuild(
-      projectName,
-      parseInt(releasedArtifact.definitionReference.version.id)
-    )
 
-    return this.mapToSimple(deployment, environmentConfiguration, releasedArtifact, build, workItem)
-  }
-  async getCurrentStagingRelease(
-    connection: azdev.WebApi,
-    projectName: string,
-    releaseDefinitionId: number
-  ) {
-    const releaseApi: ReleaseApi = await connection.getReleaseApi()
-    var statusFiler = ri.ReleaseStatus.Active
-    var last20Releases = releaseApi.getReleases(projectName, releaseDefinitionId, null, null, null)
+    this.logOBj('RELEASE', productionRelease)
+    this.logOBj('ARTIFACT', releasedArtifact)
+    this.logOBj('WORKITEM', workItem)
+    this.logOBj('BUILD', build)
+
+    logger.profile('MAP')
+    let result = this.mapToSimple(
+      deployment,
+      environmentConfiguration,
+      releasedArtifact,
+      build,
+      workItem
+    )
+    logger.profile('MAP')
+    return result
   }
 
-  async getArelease(connection: azdev.WebApi, projectName: string, releaseId: number) {
-    const releaseApi: ReleaseApi = await connection.getReleaseApi()
-    return await releaseApi.getRelease(projectName, releaseId)
-  }
-  async getSimpleRecentDeployments(
-    connection: azdev.WebApi,
-    projectName: string
-  ): Promise<DeployState[]> {
-    // gets the work items between deploys
-    //  https://<accountUrl>/<Project>/_apis/Release/releases/<ReleaseID>/workitems?baseReleaseId=<ReleaseToCompareAgainst>&%24top=250
-    const releaseApi: ReleaseApi = await connection.getReleaseApi()
-    const buildApi: BuildApi = await connection.getBuildApi()
-    const witApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
-    const results = await Promise.all(
-      configuration.map(async item => {
-        return await this.getDeploymentData(projectName, item, releaseApi, witApi, buildApi)
-      })
-    )
-    return results.sort((a, b) => (a.order > b.order ? 1 : -1))
+  logOBj(title: string, obj: any) {
+    logger.info(title, { response: obj })
   }
 
   async getRecentDeployment(

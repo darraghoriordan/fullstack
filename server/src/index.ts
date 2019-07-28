@@ -10,6 +10,7 @@ import { setUpAccounts } from './modules/user/accounts'
 import { TypegooseMiddleware } from './middleware/typegoose'
 import DeployStateResolver from './modules/azureDevops/DeployStateResolver'
 import StagingEnvironmentStateResolver from './modules/azureDevops/StagingEnvironmentResolver'
+import logger from './modules/logging/logger'
 ;(async () => {
   const mongooseConnection = await connect(
     `mongodb://${MONGO_HOST || 'localhost'}:27017/${DB_NAME}`,
@@ -40,7 +41,7 @@ import StagingEnvironmentStateResolver from './modules/azureDevops/StagingEnviro
     }),
     context: accountsGraphQL.context,
     formatError: error => {
-      console.error(error)
+      logger.error(error)
       return error
     },
     playground: true,

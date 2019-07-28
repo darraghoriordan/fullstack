@@ -8,17 +8,21 @@ import environmentConfiguration from '../../../utils/environmentConfiguration'
 export const GET_STAGING_STATE = gql`
   query GetStagingState($stagingEnvironmentStateRequest: StagingEnvironmentStateRequest!) {
     stagingEnvironmentState(stagingEnvironmentStateRequest: $stagingEnvironmentStateRequest) {
-      order
-      name
       currentBranch
-      currentBranchUri
       deployedOn
       deployedBy
-      workItemNumber
-      workItemTitle
-      workItemUri
       buildNumer
       buildUri
+      workitems {
+        title
+        id
+        testerName
+        creator
+        url
+      }
+      releaseName
+      releaseId
+      releaseUrl
     }
   }
 `
@@ -62,12 +66,16 @@ const Staging = () => {
           <div>
             <h2> Current State</h2>
             <p>
+              <a href={data.stagingEnvironmentState.releaseUrl}>
+                {data.stagingEnvironmentState.releaseName} ({data.stagingEnvironmentState.releaseId}
+                )
+              </a>
               <a href={data.stagingEnvironmentState.buildUri}>
                 {data.stagingEnvironmentState.buildNumer}
               </a>{' '}
               by {data.stagingEnvironmentState.deployedBy}
             </p>
-            <p>5 hours ago</p>
+            <p>{data.stagingEnvironmentState.deployedOn}</p>
             <p>State of build</p>
           </div>
           <div>

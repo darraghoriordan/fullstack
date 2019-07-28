@@ -1,13 +1,15 @@
 import { StagingEnvironmentState } from './StagingEnvironmentState'
 import { InputType, Field, Query, Authorized, Arg, Ctx, Resolver } from 'type-graphql'
-import { DevopsService } from './DevopsService'
 import { UserService } from '../user/UserService'
 import { Context } from 'vm'
 import { getConnection } from './connectionFactory'
-import * as util from 'util'
+import logger from '../logging/logger'
+import StagingEnvironmentService from './StagingEnvironemntService'
+import StagingStateMapper from './StagingStateMapper'
+import ProjectService from './ProjectService'
 
 @InputType()
-class StagingEnvironmentStateRequest {
+export class StagingEnvironmentStateRequest {
   @Field()
   releaseEnvironmentName: string
   @Field()
@@ -20,12 +22,16 @@ class StagingEnvironmentStateRequest {
 
 @Resolver(StagingEnvironmentState)
 export default class StagingEnvironmentStateResolver {
-  private readonly service: DevopsService
+  private readonly stagingEnvironmentService: StagingEnvironmentService
   private readonly userService: UserService
+  private readonly mapper: StagingStateMapper
+  private readonly projectService: ProjectService
 
   constructor() {
-    this.service = new DevopsService()
+    this.stagingEnvironmentService = new StagingEnvironmentService()
     this.userService = new UserService()
+    this.mapper = new StagingStateMapper()
+    this.projectService = new ProjectService()
   }
 
   @Query(returns => StagingEnvironmentState)
@@ -38,12 +44,17 @@ export default class StagingEnvironmentStateResolver {
     if (ctx && ctx.userId) {
       const user = await this.userService.findOneById(ctx.userId)
       const connection = getConnection(user.devopsAccount)
+      const project = await this.projectService.getFirstProject(connection)
+      const currentState = await this.stagingEnvironmentService.getCurrentStagingRelease(
+        connection,
+        project.name,
+        stagingEnvironmentStateRequest
+      )
+      var mappedState = this.mapper.map(currentState)
 
-      const firstProject = await this.service.getProjects(connection) //[0]
-
-      const result = await this.service.getArelease(connection, firstProject[0].name, 13403)
-      console.log(util.inspect(result, false, 2, true /* enable colors */))
-      return new StagingEnvironmentState()
+      //quick blog post on winston logging objects
+      logger.info('STAGE RELEASE: ', { returned: currentState })
+      return mappedState
     }
   }
 }

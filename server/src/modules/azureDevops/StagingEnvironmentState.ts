@@ -1,27 +1,26 @@
 import { ObjectType, Field } from 'type-graphql'
+import WorkItemDetails from './WorkItemDetails'
 
 @ObjectType()
 export class StagingEnvironmentState {
   @Field()
-  order: number
-  @Field()
-  name: string
-  @Field()
   currentBranch: string
-  @Field()
-  currentBranchUri: string
   @Field(() => Date)
   deployedOn: Date
   @Field()
   deployedBy: string
-  @Field()
-  workItemNumber: string
-  @Field()
-  workItemTitle: string
-  @Field()
-  workItemUri: string
+  @Field(type => [WorkItemDetails])
+  workitems: WorkItemDetails[]
   @Field()
   buildNumer: string
   @Field()
   buildUri: string
+  @Field()
+  releaseName: string
+  @Field()
+  releaseId: number
+  @Field()
+  releaseUrl: string
+  @Field()
+  deployState: string
 }

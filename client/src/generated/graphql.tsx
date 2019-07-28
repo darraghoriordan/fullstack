@@ -170,7 +170,6 @@ export type Query = {
   twoFactorSecret?: Maybe<TwoFactorSecretKey>
   getUser?: Maybe<User>
   me: User
-  deployStates: Array<DeployState>
   deployState: DeployState
   stagingEnvironmentState: StagingEnvironmentState
 }
@@ -190,17 +189,16 @@ export enum Role {
 
 export type StagingEnvironmentState = {
   __typename?: 'StagingEnvironmentState'
-  order: Scalars['Float']
-  name: Scalars['String']
   currentBranch: Scalars['String']
-  currentBranchUri: Scalars['String']
   deployedOn: Scalars['DateTime']
   deployedBy: Scalars['String']
-  workItemNumber: Scalars['String']
-  workItemTitle: Scalars['String']
-  workItemUri: Scalars['String']
+  workitems: Array<WorkItemDetails>
   buildNumer: Scalars['String']
   buildUri: Scalars['String']
+  releaseName: Scalars['String']
+  releaseId: Scalars['Float']
+  releaseUrl: Scalars['String']
+  deployState: Scalars['String']
 }
 
 export type StagingEnvironmentStateRequest = {
@@ -258,6 +256,15 @@ export type UserInput = {
   email?: Maybe<Scalars['String']>
   username?: Maybe<Scalars['String']>
 }
+
+export type WorkItemDetails = {
+  __typename?: 'WorkItemDetails'
+  id: Scalars['Float']
+  title: Scalars['String']
+  testerName: Scalars['String']
+  creator: Scalars['String']
+  url: Scalars['String']
+}
 export type OnboardUserMutationVariables = {
   devopsAccount: DevopsAccountInput
 }
@@ -271,18 +278,22 @@ export type GetStagingStateQueryVariables = {
 export type GetStagingStateQuery = { __typename?: 'Query' } & {
   stagingEnvironmentState: { __typename?: 'StagingEnvironmentState' } & Pick<
     StagingEnvironmentState,
-    | 'order'
-    | 'name'
     | 'currentBranch'
-    | 'currentBranchUri'
     | 'deployedOn'
     | 'deployedBy'
-    | 'workItemNumber'
-    | 'workItemTitle'
-    | 'workItemUri'
     | 'buildNumer'
     | 'buildUri'
-  >
+    | 'releaseName'
+    | 'releaseId'
+    | 'releaseUrl'
+  > & {
+      workitems: Array<
+        { __typename?: 'WorkItemDetails' } & Pick<
+          WorkItemDetails,
+          'title' | 'id' | 'testerName' | 'creator' | 'url'
+        >
+      >
+    }
 }
 
 export type GetDeployStateQueryVariables = {
@@ -339,17 +350,21 @@ export function useOnboardUserMutation(
 export const GetStagingStateDocument = gql`
   query GetStagingState($stagingEnvironmentStateRequest: StagingEnvironmentStateRequest!) {
     stagingEnvironmentState(stagingEnvironmentStateRequest: $stagingEnvironmentStateRequest) {
-      order
-      name
       currentBranch
-      currentBranchUri
       deployedOn
       deployedBy
-      workItemNumber
-      workItemTitle
-      workItemUri
       buildNumer
       buildUri
+      workitems {
+        title
+        id
+        testerName
+        creator
+        url
+      }
+      releaseName
+      releaseId
+      releaseUrl
     }
   }
 `
