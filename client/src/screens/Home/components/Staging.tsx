@@ -4,6 +4,7 @@ import { View } from 'react-native'
 import gql from 'graphql-tag'
 import { useGetStagingStateQuery } from '../../../generated/graphql'
 import environmentConfiguration from '../../../utils/environmentConfiguration'
+import { format, distanceInWordsToNow } from 'date-fns'
 
 export const GET_STAGING_STATE = gql`
   query GetStagingState($stagingEnvironmentStateRequest: StagingEnvironmentStateRequest!) {
@@ -23,6 +24,7 @@ export const GET_STAGING_STATE = gql`
       releaseName
       releaseId
       releaseUrl
+      deployState
     }
   }
 `
@@ -75,8 +77,28 @@ const Staging = () => {
               </a>{' '}
               by {data.stagingEnvironmentState.deployedBy}
             </p>
-            <p>{data.stagingEnvironmentState.deployedOn}</p>
-            <p>State of build</p>
+            <p
+              title={format(new Date(data.stagingEnvironmentState.deployedOn), 'YYYY-MM-DD hh:mma')}
+            >
+              {distanceInWordsToNow(new Date(data.stagingEnvironmentState.deployedOn)) + ' ago'}
+            </p>
+            <p>{data.stagingEnvironmentState.deployState}</p>
+            <h3>Work Items</h3>
+            <ul>
+              {data.stagingEnvironmentState.workitems.map(wi => {
+                return (
+                  <li key={wi.id}>
+                    <p>
+                      <a href={wi.url}>
+                        {wi.id} - {wi.title}
+                      </a>
+                    </p>
+                    <p>by {wi.creator} for AREA</p>
+                    <p>tested by {wi.testerName}</p>
+                  </li>
+                )
+              })}
+            </ul>
           </div>
           <div>
             <h2>Deploy new</h2>

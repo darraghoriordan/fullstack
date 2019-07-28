@@ -4,7 +4,7 @@ import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import { StagingEnvironmentStateRequest } from './StagingEnvironmentResolver'
 import logger from '../logging/logger'
 
-export class PreProductionEnvironmentService {
+export class ProductionEnvironmentService {
   getCurrentProductionelease = async (
     connection: azdev.WebApi,
     projectName: string,
@@ -35,13 +35,13 @@ export class PreProductionEnvironmentService {
     )
 
     //now filter them to only the first one that looks like a staging release
-    var stagingRelease = lastProductionReleases.find(x => this.releasesIdentifiationFilter(x))
+    var foundRelease = lastProductionReleases.find(x => this.releasesIdentifiationFilter(x))
 
-    if (!stagingRelease) {
+    if (!foundRelease) {
       throw new Error('Could not find a relevant release!')
     }
 
-    return stagingRelease
+    return foundRelease
   }
 
   releasesIdentifiationFilter = (item: ri.Release): boolean => {
@@ -78,4 +78,4 @@ export class PreProductionEnvironmentService {
   }
 }
 
-export default PreProductionEnvironmentService
+export default ProductionEnvironmentService

@@ -1,7 +1,7 @@
 import { View } from 'react-native'
 import gql from 'graphql-tag'
 import { useGetDeployStateQuery } from '../../../generated/graphql'
-import { distanceInWordsToNow } from 'date-fns'
+import { distanceInWordsToNow, format } from 'date-fns'
 import * as React from 'react'
 import styled from 'styled-components'
 
@@ -74,7 +74,9 @@ const TestEnvironmentPanel = ({
             <a href={data.deployState.buildUri}>{data.deployState.buildNumer}</a> by{' '}
             {data.deployState.deployedBy}
           </p>
-          <p>{distanceInWordsToNow(new Date(data.deployState.deployedOn)) + ' ago'}</p>
+          <p title={format(new Date(data.deployState.deployedOn), 'YYYY-MM-DD hh:mma')}>
+            {distanceInWordsToNow(new Date(data.deployState.deployedOn)) + ' ago'}
+          </p>
           <p>
             see branch{' '}
             <a href={data.deployState.currentBranchUri}>{data.deployState.currentBranch}</a>

@@ -6,24 +6,49 @@ import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import * as wit from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces'
 import { DeployState } from './DeployState'
 import { ConfigItem } from './ConfigItem'
-import { WorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi'
 import logger from '../logging/logger'
+import PreProductionEnvironmentService from './PreProductionEnvironmentService'
+import ProductionEnvironmentService from './ProductionEnvironmentService'
+import { connection } from 'mongoose'
 
 export class TestEnvironmentService {
+  private readonly productionEnvironmentService: PreProductionEnvironmentService
+
+  constructor() {
+    this.productionEnvironmentService = new ProductionEnvironmentService()
+  }
+
   async getSingleDeployment(
     connection: azdev.WebApi,
     projectName: string,
     environmentConfiguration: ConfigItem
   ): Promise<DeployState> {
-    const releaseApi: ReleaseApi = await connection.getReleaseApi()
-    const buildApi: BuildApi = await connection.getBuildApi()
-    const witApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
+    const releaseApiPromise = connection.getReleaseApi()
+    const buildApiPromise = connection.getBuildApi()
+    const witApiPromise = connection.getWorkItemTrackingApi()
+    let productionReleasePromise = this.productionEnvironmentService.getCurrentProductionelease(
+      connection,
+      projectName,
+      {
+        releaseEnvironmentName: '@pr-auea-web05',
+        releaseDefinitionId: 16,
+        definitionEnvironmentId: 106,
+        artifactAlias: '[ALPHA] Continuous Build & Packaging CloudApp',
+      }
+    )
+    let [releaseApi, buildApi, witApi, productionRelease] = await Promise.all([
+      releaseApiPromise,
+      buildApiPromise,
+      witApiPromise,
+      productionReleasePromise,
+    ])
+
     return await this.getDeploymentData(
       projectName,
       environmentConfiguration,
       releaseApi,
-      witApi,
-      buildApi
+      buildApi,
+      productionRelease
     )
   }
 
@@ -31,57 +56,38 @@ export class TestEnvironmentService {
     projectName: string,
     environmentConfiguration: ConfigItem,
     releaseApi: ReleaseApi,
-    witApi: WorkItemTrackingApi,
-    buildApi: BuildApi
+    buildApi: BuildApi,
+    productionRelease: ri.Release
   ): Promise<DeployState> {
     let deploymentPromise = this.getRecentDeployment(
       releaseApi,
       projectName,
       environmentConfiguration
     )
-    let productionReleasePromise = releaseApi.getReleases(
-      projectName,
-      16,
-      140,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      1
-    )
-    logger.profile('DEP and RELEASE')
-    let [deployment, productionRelease] = await Promise.all([
-      deploymentPromise,
-      productionReleasePromise,
-    ])
-    logger.profile('DEP and RELEASE')
+
+    let deployment = await deploymentPromise
+
     let releasedArtifact = deployment.release.artifacts.find(
       x => x.alias === environmentConfiguration.artifactAlias
     )
 
-    let workItemsPromise = releaseApi.getReleaseWorkItemsRefs(
-      projectName,
-      deployment.release.id,
-      productionRelease[0].id
-    )
     let buildPromise = buildApi.getBuild(
       projectName,
       parseInt(releasedArtifact.definitionReference.version.id)
     )
     logger.profile('WI and BUILD')
-    let [workItems, build] = await Promise.all([workItemsPromise, buildPromise])
+    let [build] = await Promise.all([buildPromise])
     logger.profile('WI and BUILD')
     let workItem: wit.WorkItem
-    if (workItems.length > 0) {
-      workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
-    }
+    // if (workItems.length > 0) {
+    //     workItem = await witApi.getWorkItem(parseInt(workItems[0].id), ['System.Title'])
+    // }
+    // else {
+    //     logger.info("no work items between " + deployment.release.id + " and " + productionRelease.id)
+    // }
 
     this.logOBj('RELEASE', productionRelease)
     this.logOBj('ARTIFACT', releasedArtifact)
-    this.logOBj('WORKITEM', workItem)
     this.logOBj('BUILD', build)
 
     logger.profile('MAP')

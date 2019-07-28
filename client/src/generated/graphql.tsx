@@ -286,6 +286,7 @@ export type GetStagingStateQuery = { __typename?: 'Query' } & {
     | 'releaseName'
     | 'releaseId'
     | 'releaseUrl'
+    | 'deployState'
   > & {
       workitems: Array<
         { __typename?: 'WorkItemDetails' } & Pick<
@@ -365,6 +366,7 @@ export const GetStagingStateDocument = gql`
       releaseName
       releaseId
       releaseUrl
+      deployState
     }
   }
 `

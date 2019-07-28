@@ -7,6 +7,7 @@ import logger from '../logging/logger'
 import StagingEnvironmentService from './StagingEnvironemntService'
 import StagingStateMapper from './StagingStateMapper'
 import ProjectService from './ProjectService'
+import ProductionEnvironmentService from './ProductionEnvironmentService'
 
 @InputType()
 export class StagingEnvironmentStateRequest {
@@ -26,12 +27,14 @@ export default class StagingEnvironmentStateResolver {
   private readonly userService: UserService
   private readonly mapper: StagingStateMapper
   private readonly projectService: ProjectService
+  private readonly productionEnvironmentService: ProductionEnvironmentService
 
   constructor() {
     this.stagingEnvironmentService = new StagingEnvironmentService()
     this.userService = new UserService()
     this.mapper = new StagingStateMapper()
     this.projectService = new ProjectService()
+    this.productionEnvironmentService = new ProductionEnvironmentService()
   }
 
   @Query(returns => StagingEnvironmentState)
@@ -50,7 +53,26 @@ export default class StagingEnvironmentStateResolver {
         project.name,
         stagingEnvironmentStateRequest
       )
-      var mappedState = this.mapper.map(currentState)
+
+      let productionRelease = await this.productionEnvironmentService.getCurrentProductionelease(
+        connection,
+        project.name,
+        {
+          releaseEnvironmentName: '@pr-auea-web05',
+          releaseDefinitionId: 16,
+          definitionEnvironmentId: 106,
+          artifactAlias: '[ALPHA] Continuous Build & Packaging CloudApp',
+        }
+      )
+
+      var workItems = await this.stagingEnvironmentService.getWorkItemsBetween(
+        connection,
+        project.name,
+        currentState,
+        productionRelease
+      )
+      logger.info('WORKITEMS: ', { returned: workItems })
+      var mappedState = this.mapper.map(currentState, workItems)
 
       //quick blog post on winston logging objects
       logger.info('STAGE RELEASE: ', { returned: currentState })
