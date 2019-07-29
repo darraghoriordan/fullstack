@@ -1,13 +1,12 @@
 import { StagingEnvironmentState } from './StagingEnvironmentState'
 import { InputType, Field, Query, Authorized, Arg, Ctx, Resolver } from 'type-graphql'
-import { UserService } from '../user/UserService'
+import { UserService } from '../../user/UserService'
 import { Context } from 'vm'
-import { getConnection } from './connectionFactory'
-import logger from '../logging/logger'
+import { getConnection } from '../Common/connectionFactory'
 import StagingEnvironmentService from './StagingEnvironemntService'
 import StagingStateMapper from './StagingStateMapper'
-import ProjectService from './ProjectService'
-import ProductionEnvironmentService from './ProductionEnvironmentService'
+import ProjectService from '../Common/ProjectService'
+import ProductionEnvironmentService from '../ProductionEnvironmentService'
 
 @InputType()
 export class StagingEnvironmentStateRequest {
@@ -65,17 +64,16 @@ export default class StagingEnvironmentStateResolver {
         }
       )
 
-      var workItems = await this.stagingEnvironmentService.getWorkItemsBetween(
+      let workItems = await this.stagingEnvironmentService.getWorkItemsBetween(
         connection,
         project.name,
+        stagingEnvironmentStateRequest.artifactAlias,
         currentState,
         productionRelease
       )
-      logger.info('WORKITEMS: ', { returned: workItems })
-      var mappedState = this.mapper.map(currentState, workItems)
 
-      //quick blog post on winston logging objects
-      logger.info('STAGE RELEASE: ', { returned: currentState })
+      let mappedState = this.mapper.map(currentState, workItems)
+
       return mappedState
     }
   }

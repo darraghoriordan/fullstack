@@ -12,4 +12,6 @@ export default class WorkItemDetails {
   creator: string
   @Field()
   url: string
+  @Field()
+  area: string
 }

@@ -1,5 +1,5 @@
 import { ObjectType, Field } from 'type-graphql'
-import WorkItemDetails from './WorkItemDetails'
+import WorkItemDetails from '../Common/WorkItemDetails'
 
 @ObjectType()
 export class StagingEnvironmentState {

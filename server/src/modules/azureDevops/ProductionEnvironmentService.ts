@@ -1,8 +1,9 @@
 import * as azdev from 'azure-devops-node-api'
 import { ReleaseApi } from 'azure-devops-node-api/ReleaseApi'
 import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
-import { StagingEnvironmentStateRequest } from './StagingEnvironmentResolver'
+import { StagingEnvironmentStateRequest } from './StagingEnvironment/StagingEnvironmentResolver'
 import logger from '../logging/logger'
+import { environmentStateIsAsExpected } from './Common/EnvironmentStateService'
 
 export class ProductionEnvironmentService {
   getCurrentProductionelease = async (
@@ -12,7 +13,7 @@ export class ProductionEnvironmentService {
   ): Promise<ri.Release> => {
     logger.info('production env request', { requestConfig: environmentConfiguration })
     const releaseApi: ReleaseApi = await connection.getReleaseApi()
-    // this could be faster/more efficient if we set tags for the various deploy stages
+    // this could be faster/more efficient if we set tags for the letious deploy stages
     const stagingStatusFilter = ri.ReleaseStatus.Active
     const orderBy = ri.ReleaseQueryOrder.Descending
     let releaseExpands =
@@ -35,7 +36,7 @@ export class ProductionEnvironmentService {
     )
 
     //now filter them to only the first one that looks like a staging release
-    var foundRelease = lastProductionReleases.find(x => this.releasesIdentifiationFilter(x))
+    let foundRelease = lastProductionReleases.find(x => this.releasesIdentifiationFilter(x))
 
     if (!foundRelease) {
       throw new Error('Could not find a relevant release!')
@@ -46,35 +47,9 @@ export class ProductionEnvironmentService {
 
   releasesIdentifiationFilter = (item: ri.Release): boolean => {
     return (
-      this.environmentStateIsAsExpected(item, '@pr-auea-job01', ri.EnvironmentStatus.Succeeded) &&
-      this.environmentStateIsAsExpected(item, '@pr-auea-web05', ri.EnvironmentStatus.Succeeded)
+      environmentStateIsAsExpected(item, '@pr-auea-job01', ri.EnvironmentStatus.Succeeded) &&
+      environmentStateIsAsExpected(item, '@pr-auea-web05', ri.EnvironmentStatus.Succeeded)
     )
-  }
-  environmentHasPreApprovalAtStage = (item: ri.Release, environmentName: string): boolean => {
-    let environmentState = item.environments.find(x => x.name == environmentName)
-    if (!environmentState) {
-      return false
-    }
-    let approval = environmentState.preDeployApprovals.find(
-      x => (x.approvalType = ri.ApprovalType.PreDeploy)
-    )
-    if (!approval) {
-      return false
-    }
-    return approval.status == ri.ApprovalStatus.Approved
-  }
-  environmentStateIsAsExpected = (
-    item: ri.Release,
-    environmentName: string,
-    expectedStatesMask: ri.EnvironmentStatus
-  ): boolean => {
-    logger.info('The suspect item!', { theitem: item })
-    var environmentState = item.environments.find(x => x.name == environmentName)
-    if (!environmentState) {
-      return false
-    }
-    //quick blog post on checking bitwise in typescript
-    return environmentState.status === (environmentState.status & expectedStatesMask)
   }
 }
 

@@ -4,11 +4,17 @@ import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import { BuildApi } from 'azure-devops-node-api/BuildApi'
 import { WorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi'
 import { StagingEnvironmentStateRequest } from './StagingEnvironmentResolver'
-import logger from '../logging/logger'
+import logger from '../../logging/logger'
 import { ResourceRef } from 'azure-devops-node-api/interfaces/common/VSSInterfaces'
-import WorkItemDetails from './WorkItemDetails'
+import WorkItemDetails from '../Common/WorkItemDetails'
+import { environmentHasPreApprovalAtStage } from '../Common/EnvironmentStateService'
+import { WorkItemDetailsMapper } from '../Common/WorkITemDetailsMapper'
 
 export class StagingEnvironmentService {
+  private readonly workItemDetailsMapper: WorkItemDetailsMapper
+  constructor() {
+    this.workItemDetailsMapper = new WorkItemDetailsMapper()
+  }
   // to deploy this release to the next stage you would approve job01 and web05 pre-deploy approvals
   getCurrentStagingRelease = async (
     connection: azdev.WebApi,
@@ -41,7 +47,7 @@ export class StagingEnvironmentService {
     )
 
     //now filter them to only the first one that looks like a staging release
-    var stagingRelease = lastProductionReleases.find(x => this.stagingReleasesFilter(x))
+    let stagingRelease = lastProductionReleases.find(x => this.stagingReleasesFilter(x))
 
     if (!stagingRelease) {
       throw new Error('Could not find a relevant release!')
@@ -52,18 +58,15 @@ export class StagingEnvironmentService {
 
   async getWorkItemsBetween(
     connection: azdev.WebApi,
+    artifactAlias: string,
     projectName: string,
     stagingRelease: ri.Release,
     productionRelease: ri.Release
   ): Promise<WorkItemDetails[]> {
     const buildApi: BuildApi = await connection.getBuildApi()
     const workItemApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
-    let stagingArtifact = stagingRelease.artifacts.find(
-      x => x.alias === '[ALPHA] Continuous Build & Packaging CloudApp'
-    )
-    let productionArtifact = productionRelease.artifacts.find(
-      x => x.alias == '[ALPHA] Continuous Build & Packaging CloudApp'
-    )
+    let stagingArtifact = stagingRelease.artifacts.find(x => x.alias === artifactAlias)
+    let productionArtifact = productionRelease.artifacts.find(x => x.alias == artifactAlias)
     let workItemRefs = await buildApi.getWorkItemsBetweenBuilds(
       projectName,
       parseInt(stagingArtifact.definitionReference.version.id),
@@ -75,53 +78,12 @@ export class StagingEnvironmentService {
         return workItemApi.getWorkItem(parseInt(x.id))
       })
     )
-    let workItemDetails: WorkItemDetails[] = workItems
-      .filter(x => x)
-      .map(x => {
-        logger.info('a work item', { result: x })
-        let wi = new WorkItemDetails()
-        // area: workItem.fields['System.AreaPath']
-        // tester: workItem.fields['System.AreaPath']
-        let assignedTo = x.fields['System.AssignedTo']
-        wi.creator = (assignedTo && assignedTo.displayName) || 'Unassigned'
-        wi.id = x.id
-        wi.testerName = x.fields['Cin7Scrum.TestedBy'] || 'Unassigned'
-        wi.title = x.fields['System.Title'] || 'No title set'
-        wi.url = x._links.html.href
-        return wi
-      })
-    return workItemDetails
+
+    return this.workItemDetailsMapper.map(workItems)
   }
 
   stagingReleasesFilter = (item: ri.Release): boolean => {
-    return this.environmentHasPreApprovalAtStage(item, 'New Staging')
-  }
-
-  environmentHasPreApprovalAtStage = (item: ri.Release, environmentName: string): boolean => {
-    let environmentState = item.environments.find(x => x.name == environmentName)
-    if (!environmentState) {
-      return false
-    }
-    let approval = environmentState.preDeployApprovals.find(
-      x => (x.approvalType = ri.ApprovalType.PreDeploy)
-    )
-    if (!approval) {
-      return false
-    }
-    return approval.status == ri.ApprovalStatus.Approved
-  }
-  environmentStateIsAsExpected = (
-    item: ri.Release,
-    environmentName: string,
-    expectedStatesMask: ri.EnvironmentStatus
-  ): boolean => {
-    logger.info('The suspect item!', { theitem: item })
-    var environmentState = item.environments.find(x => x.name == environmentName)
-    if (!environmentState) {
-      return false
-    }
-    //quick blog post on checking bitwise in typescript
-    return environmentState.status === (environmentState.status & expectedStatesMask)
+    return environmentHasPreApprovalAtStage(item, 'New Staging')
   }
 }
 

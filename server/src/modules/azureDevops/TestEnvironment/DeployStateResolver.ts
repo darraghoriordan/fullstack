@@ -1,10 +1,10 @@
 import { Resolver, Query, Authorized, Ctx, InputType, Field, Arg } from 'type-graphql'
 import { DeployState } from './DeployState'
 import { Context } from 'vm'
-import { getConnection } from './connectionFactory'
-import { UserService } from '../user/UserService'
-import { TestEnvironmentService } from './TestEnvironmentService'
-import ProjectService from './ProjectService'
+import { getConnection } from '../Common/connectionFactory'
+import { UserService } from '../../user/UserService'
+import { TestEnvironmentStateService } from './TestEnvironmentStateService'
+import ProjectService from '../Common/ProjectService'
 
 @InputType()
 class DeployStateRequest {
@@ -24,12 +24,12 @@ class DeployStateRequest {
 
 @Resolver(DeployState)
 export default class DeployStateResolver {
-  private readonly testEnvironmentService: TestEnvironmentService
+  private readonly testEnvironmentService: TestEnvironmentStateService
   private readonly userService: UserService
   private readonly projectService: ProjectService
 
   constructor() {
-    this.testEnvironmentService = new TestEnvironmentService()
+    this.testEnvironmentService = new TestEnvironmentStateService()
     this.userService = new UserService()
     this.projectService = new ProjectService()
   }

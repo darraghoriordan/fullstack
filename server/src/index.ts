@@ -8,8 +8,8 @@ import UserResolver from './modules/user/UserResolver'
 import { authChecker } from './modules/user/authChecker'
 import { setUpAccounts } from './modules/user/accounts'
 import { TypegooseMiddleware } from './middleware/typegoose'
-import DeployStateResolver from './modules/azureDevops/DeployStateResolver'
-import StagingEnvironmentStateResolver from './modules/azureDevops/StagingEnvironmentResolver'
+import DeployStateResolver from './modules/azureDevops/TestEnvironment/DeployStateResolver'
+import StagingEnvironmentStateResolver from './modules/azureDevops/StagingEnvironment/StagingEnvironmentResolver'
 import logger from './modules/logging/logger'
 ;(async () => {
   const mongooseConnection = await connect(

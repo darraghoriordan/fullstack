@@ -111,4 +111,5 @@ type WorkItemDetails {
   testerName: String!
   creator: String!
   url: String!
+  area: String!
 }
