@@ -8,7 +8,7 @@ import logger from '../../logging/logger'
 import { ResourceRef } from 'azure-devops-node-api/interfaces/common/VSSInterfaces'
 import WorkItemDetails from '../Common/WorkItemDetails'
 import { environmentHasPreApprovalAtStage } from '../Common/EnvironmentStateService'
-import { WorkItemDetailsMapper } from '../Common/WorkITemDetailsMapper'
+import { WorkItemDetailsMapper } from '../Common/WorkItemDetailsMapperrr'
 
 export class StagingEnvironmentService {
   private readonly workItemDetailsMapper: WorkItemDetailsMapper
