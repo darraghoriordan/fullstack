@@ -36,14 +36,14 @@ export class PreProductionEnvironmentService {
     )
 
     //now filter them to only the first one that looks like a staging release
-    let stagingRelease = lastProductionReleases.find(x => this.releasesIdentifiationFilter(x))
+    let release = lastProductionReleases.find(x => this.releasesIdentifiationFilter(x))
 
-    if (!stagingRelease) {
+    if (!release) {
       throw new Error('Could not find a relevant release!')
     }
     logger.info('staging list', { list: lastProductionReleases.map(x => x.id) })
-    logger.info('staging found', { list: stagingRelease.id })
-    return stagingRelease
+    logger.info('staging found', { list: release.id })
+    return release
   }
 
   releasesIdentifiationFilter = (item: ri.Release): boolean => {

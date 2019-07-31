@@ -55,17 +55,24 @@ export class StagingEnvironmentService {
 
     return stagingRelease
   }
+  async approveCurrentStagingRelease(
+    connection: azdev.WebApi,
+    projectName: string,
+    environmentConfiguration: StagingEnvironmentStateRequest
+  ) {}
 
   async getWorkItemsBetween(
     connection: azdev.WebApi,
-    artifactAlias: string,
     projectName: string,
+    artifactAlias: string,
     stagingRelease: ri.Release,
     productionRelease: ri.Release
   ): Promise<WorkItemDetails[]> {
     const buildApi: BuildApi = await connection.getBuildApi()
     const workItemApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
-    let stagingArtifact = stagingRelease.artifacts.find(x => x.alias === artifactAlias)
+    logger.info('stagingrelease', { data: stagingRelease })
+    logger.info(artifactAlias)
+    let stagingArtifact = stagingRelease.artifacts.find(x => x.alias == artifactAlias)
     let productionArtifact = productionRelease.artifacts.find(x => x.alias == artifactAlias)
     let workItemRefs = await buildApi.getWorkItemsBetweenBuilds(
       projectName,
