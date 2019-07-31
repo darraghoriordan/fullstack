@@ -2,18 +2,19 @@ import { WorkItem } from 'azure-devops-node-api/interfaces/WorkItemTrackingInter
 import WorkItemDetails from './WorkItemDetails'
 
 export class WorkItemDetailsMapper {
-  map(workItems: WorkItem[]) {
+  map = (workItems: WorkItem[]) => {
     return workItems.filter(x => x != null).map(this.mapSingle)
   }
 
-  mapSingle(workItem: WorkItem): WorkItemDetails {
+  mapSingle = (workItem: WorkItem): WorkItemDetails => {
     let wi = new WorkItemDetails()
 
     let assignedTo = workItem.fields['System.AssignedTo']
     let testerName = workItem.fields['Cin7Scrum.TestedBy']
+    let areaPath = workItem.fields['System.AreaPath']
     wi.creator = assignedTo ? assignedTo.displayName : 'Unassigned'
     wi.id = workItem.id
-    wi.area = this.getLastPartOfAreaPath(workItem.fields['System.AreaPath'])
+    wi.area = areaPath ? this.getLastPartOfAreaPath(areaPath) : 'Unknown Area'
     wi.testerName = testerName ? testerName.displayName : 'Unassigned'
     wi.title = workItem.fields['System.Title'] || 'No title set'
     wi.url = workItem._links.html.href
@@ -28,3 +29,5 @@ export class WorkItemDetailsMapper {
     return rawArea.split('\\').pop()
   }
 }
+
+export default WorkItemDetailsMapper

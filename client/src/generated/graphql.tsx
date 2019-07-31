@@ -264,6 +264,7 @@ export type WorkItemDetails = {
   testerName: Scalars['String']
   creator: Scalars['String']
   url: Scalars['String']
+  area: Scalars['String']
 }
 export type OnboardUserMutationVariables = {
   devopsAccount: DevopsAccountInput
@@ -291,7 +292,7 @@ export type GetStagingStateQuery = { __typename?: 'Query' } & {
       workitems: Array<
         { __typename?: 'WorkItemDetails' } & Pick<
           WorkItemDetails,
-          'title' | 'id' | 'testerName' | 'creator' | 'url'
+          'title' | 'id' | 'testerName' | 'creator' | 'url' | 'area'
         >
       >
     }
@@ -362,6 +363,7 @@ export const GetStagingStateDocument = gql`
         testerName
         creator
         url
+        area
       }
       releaseName
       releaseId

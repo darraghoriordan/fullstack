@@ -21,6 +21,7 @@ export const GET_STAGING_STATE = gql`
         testerName
         creator
         url
+        area
       }
       releaseName
       releaseId
@@ -109,7 +110,9 @@ const Staging = () => {
                           {wi.id} - {wi.title}
                         </a>
                       </p>
-                      <p>by {wi.creator} for AREA</p>
+                      <p>
+                        by {wi.creator} for {wi.area}
+                      </p>
                       <p>tested by {wi.testerName}</p>
                     </li>
                   )
