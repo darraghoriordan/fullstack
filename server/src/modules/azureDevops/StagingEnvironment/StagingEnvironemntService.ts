@@ -4,7 +4,6 @@ import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import { BuildApi } from 'azure-devops-node-api/BuildApi'
 import { WorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi'
 import { StagingEnvironmentStateRequest } from './StagingEnvironmentResolver'
-import logger from '../../logging/logger'
 import { ResourceRef } from 'azure-devops-node-api/interfaces/common/VSSInterfaces'
 import WorkItemDetails from '../Common/WorkItemDetails'
 import { environmentHasPreApprovalAtStage } from '../Common/EnvironmentStateService'
@@ -21,7 +20,6 @@ export class StagingEnvironmentService {
     projectName: string,
     environmentConfiguration: StagingEnvironmentStateRequest
   ): Promise<ri.Release> => {
-    logger.info('staging env request', { requestConfig: environmentConfiguration })
     const releaseApi: ReleaseApi = await connection.getReleaseApi()
 
     // this could be faster/more efficient if we set tags for the various deploy stages
@@ -70,8 +68,6 @@ export class StagingEnvironmentService {
   ): Promise<WorkItemDetails[]> {
     const buildApi: BuildApi = await connection.getBuildApi()
     const workItemApi: WorkItemTrackingApi = await connection.getWorkItemTrackingApi()
-    logger.info('stagingrelease', { data: stagingRelease })
-    logger.info(artifactAlias)
     let stagingArtifact = stagingRelease.artifacts.find(x => x.alias == artifactAlias)
     let productionArtifact = productionRelease.artifacts.find(x => x.alias == artifactAlias)
     let workItemRefs = await buildApi.getWorkItemsBetweenBuilds(

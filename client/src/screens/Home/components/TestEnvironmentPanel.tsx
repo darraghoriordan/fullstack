@@ -17,7 +17,7 @@ export const GET_SINGLE_DEPLOY_STATE = gql`
       workItemNumber
       workItemTitle
       workItemUri
-      buildNumer
+      buildNumber
       buildUri
     }
   }
@@ -71,7 +71,7 @@ const TestEnvironmentPanel = ({
         <OverflowContainer>
           <h2>{data.deployState.name}</h2>
           <p>
-            <a href={data.deployState.buildUri}>{data.deployState.buildNumer}</a> by{' '}
+            <a href={data.deployState.buildUri}>{data.deployState.buildNumber}</a> by{' '}
             {data.deployState.deployedBy}
           </p>
           <p title={format(new Date(data.deployState.deployedOn), 'YYYY-MM-DD hh:mma')}>
@@ -81,9 +81,10 @@ const TestEnvironmentPanel = ({
             see branch{' '}
             <a href={data.deployState.currentBranchUri}>{data.deployState.currentBranch}</a>
           </p>
-          <p></p>
-          <p>{data.deployState.workItemNumber}</p>
-          <p>{data.deployState.workItemUri}</p>
+          {/* <p>
+            see work item{' '}
+            <a href={data.deployState.workItemUri}>{data.deployState.workItemTitle}</a>
+          </p> */}
         </OverflowContainer>
       )}
     </TestEnvironmentContainer>

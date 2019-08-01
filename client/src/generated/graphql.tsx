@@ -40,7 +40,7 @@ export type DeployState = {
   workItemNumber: Scalars['String']
   workItemTitle: Scalars['String']
   workItemUri: Scalars['String']
-  buildNumer: Scalars['String']
+  buildNumber: Scalars['String']
   buildUri: Scalars['String']
 }
 
@@ -193,7 +193,7 @@ export type StagingEnvironmentState = {
   deployedOn: Scalars['DateTime']
   deployedBy: Scalars['String']
   workitems: Array<WorkItemDetails>
-  buildNumer: Scalars['String']
+  buildNumber: Scalars['String']
   buildUri: Scalars['String']
   releaseName: Scalars['String']
   releaseId: Scalars['Float']
@@ -282,7 +282,7 @@ export type GetStagingStateQuery = { __typename?: 'Query' } & {
     | 'currentBranch'
     | 'deployedOn'
     | 'deployedBy'
-    | 'buildNumer'
+    | 'buildNumber'
     | 'buildUri'
     | 'releaseName'
     | 'releaseId'
@@ -314,7 +314,7 @@ export type GetDeployStateQuery = { __typename?: 'Query' } & {
     | 'workItemNumber'
     | 'workItemTitle'
     | 'workItemUri'
-    | 'buildNumer'
+    | 'buildNumber'
     | 'buildUri'
   >
 }
@@ -355,7 +355,7 @@ export const GetStagingStateDocument = gql`
       currentBranch
       deployedOn
       deployedBy
-      buildNumer
+      buildNumber
       buildUri
       workitems {
         title
@@ -393,7 +393,7 @@ export const GetDeployStateDocument = gql`
       workItemNumber
       workItemTitle
       workItemUri
-      buildNumer
+      buildNumber
       buildUri
     }
   }

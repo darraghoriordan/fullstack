@@ -24,7 +24,7 @@ type DeployState {
   workItemNumber: String!
   workItemTitle: String!
   workItemUri: String!
-  buildNumer: String!
+  buildNumber: String!
   buildUri: String!
 }
 
@@ -80,7 +80,7 @@ type StagingEnvironmentState {
   deployedOn: DateTime!
   deployedBy: String!
   workitems: [WorkItemDetails!]!
-  buildNumer: String!
+  buildNumber: String!
   buildUri: String!
   releaseName: String!
   releaseId: Float!

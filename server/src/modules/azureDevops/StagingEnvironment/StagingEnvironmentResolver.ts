@@ -7,6 +7,7 @@ import StagingEnvironmentService from './StagingEnvironemntService'
 import StagingStateMapper from './StagingStateMapper'
 import ProjectService from '../Common/ProjectService'
 import ProductionEnvironmentService from '../ProductionEnvironmentService'
+import { SlackPostingService } from '../SlackPostingService'
 
 @InputType()
 export class StagingEnvironmentStateRequest {
@@ -27,6 +28,7 @@ export default class StagingEnvironmentStateResolver {
   private readonly mapper: StagingStateMapper
   private readonly projectService: ProjectService
   private readonly productionEnvironmentService: ProductionEnvironmentService
+  private readonly slackClient: SlackPostingService
 
   constructor() {
     this.stagingEnvironmentService = new StagingEnvironmentService()
@@ -34,6 +36,7 @@ export default class StagingEnvironmentStateResolver {
     this.mapper = new StagingStateMapper()
     this.projectService = new ProjectService()
     this.productionEnvironmentService = new ProductionEnvironmentService()
+    this.slackClient = new SlackPostingService()
   }
 
   @Query(returns => StagingEnvironmentState)
@@ -73,7 +76,7 @@ export default class StagingEnvironmentStateResolver {
       )
 
       let mappedState = this.mapper.map(currentState, workItems)
-
+      this.slackClient.postStagingWorkItems(mappedState)
       return mappedState
     }
   }

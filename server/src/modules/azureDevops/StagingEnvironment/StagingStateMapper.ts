@@ -13,7 +13,7 @@ class StagingStateMapper {
     )
 
     let stagingState = new StagingEnvironmentState()
-    stagingState.buildNumer = cloudArtifact.definitionReference.version.id
+    stagingState.buildNumber = cloudArtifact.definitionReference.version.id
     stagingState.buildUri = cloudArtifact.definitionReference.artifactSourceVersionUrl.id
     stagingState.currentBranch = cloudArtifact.definitionReference.branch.name
     stagingState.deployedBy = approval.approvedBy.displayName

@@ -1,4 +1,4 @@
-import 'reflect-metadata'
+// import * as reflectMetaData from 'reflect-metadata'
 import { connect } from 'mongoose'
 import { ApolloServer, makeExecutableSchema } from 'apollo-server'
 import { buildSchema } from 'type-graphql'
@@ -11,7 +11,10 @@ import { TypegooseMiddleware } from './middleware/typegoose'
 import DeployStateResolver from './modules/azureDevops/TestEnvironment/DeployStateResolver'
 import StagingEnvironmentStateResolver from './modules/azureDevops/StagingEnvironment/StagingEnvironmentResolver'
 import logger from './modules/logging/logger'
+import * as dotenv from 'dotenv'
+
 ;(async () => {
+  dotenv.config()
   const mongooseConnection = await connect(
     `mongodb://${MONGO_HOST || 'localhost'}:27017/${DB_NAME}`,
     { useNewUrlParser: true }
@@ -32,7 +35,7 @@ import logger from './modules/logging/logger'
     resolvers: mergeResolvers([accountsGraphQL.resolvers]),
     schemaDirectives: {
       ...accountsGraphQL.schemaDirectives,
-    },
+    } as any,
   })
 
   const server = new ApolloServer({

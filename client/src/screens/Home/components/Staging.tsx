@@ -13,7 +13,7 @@ export const GET_STAGING_STATE = gql`
       currentBranch
       deployedOn
       deployedBy
-      buildNumer
+      buildNumber
       buildUri
       workitems {
         title
@@ -87,7 +87,7 @@ const Staging = () => {
               </p>
               <p>
                 <a href={data.stagingEnvironmentState.buildUri}>
-                  {data.stagingEnvironmentState.buildNumer}
+                  {data.stagingEnvironmentState.buildNumber}
                 </a>{' '}
                 by {data.stagingEnvironmentState.deployedBy}
               </p>

@@ -8,5 +8,6 @@
   "PLAID_PUBLIC_KEY": "xxxxxxx",
   "PLAID_PRODUCTS": "transactions",
   "PLAID_COUNTRY_CODES": "US",
-  "PLAID_ENV": "sandbox"
+  "PLAID_ENV": "sandbox",
+  "SLACK_WEBHOOK_URL": "https://SET_YOUR_URL"
 }

@@ -2,7 +2,6 @@ import * as azdev from 'azure-devops-node-api'
 import { ReleaseApi } from 'azure-devops-node-api/ReleaseApi'
 import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import { StagingEnvironmentStateRequest } from './StagingEnvironment/StagingEnvironmentResolver'
-import logger from '../logging/logger'
 import { environmentStateIsAsExpected } from './Common/EnvironmentStateService'
 
 export class ProductionEnvironmentService {
@@ -11,7 +10,6 @@ export class ProductionEnvironmentService {
     projectName: string,
     environmentConfiguration: StagingEnvironmentStateRequest
   ): Promise<ri.Release> => {
-    logger.info('production env request', { requestConfig: environmentConfiguration })
     const releaseApi: ReleaseApi = await connection.getReleaseApi()
     // this could be faster/more efficient if we set tags for the letious deploy stages
     const stagingStatusFilter = ri.ReleaseStatus.Active

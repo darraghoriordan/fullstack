@@ -8,8 +8,6 @@ const environmentConfiguration: DeployStateRequest[] = [
     releaseDefinitionId: 21,
     definitionEnvironmentId: 260,
     artifactAlias: '[TestSlot] CloudApp',
-    // pipelineName: 'New Test01 CI'
-    // artifactFilter: 'Test'
   },
   {
     displayOrder: 2,

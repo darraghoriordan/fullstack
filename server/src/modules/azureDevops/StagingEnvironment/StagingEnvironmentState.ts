@@ -12,7 +12,7 @@ export class StagingEnvironmentState {
   @Field(type => [WorkItemDetails])
   workitems: WorkItemDetails[]
   @Field()
-  buildNumer: string
+  buildNumber: string
   @Field()
   buildUri: string
   @Field()

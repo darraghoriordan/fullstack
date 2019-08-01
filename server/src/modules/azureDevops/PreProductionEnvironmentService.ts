@@ -2,7 +2,6 @@ import * as azdev from 'azure-devops-node-api'
 import { ReleaseApi } from 'azure-devops-node-api/ReleaseApi'
 import * as ri from 'azure-devops-node-api/interfaces/ReleaseInterfaces'
 import { StagingEnvironmentStateRequest } from './StagingEnvironment/StagingEnvironmentResolver'
-import logger from '../logging/logger'
 import { environmentHasPreApprovalAtStage } from './Common/EnvironmentStateService'
 
 export class PreProductionEnvironmentService {
@@ -11,7 +10,6 @@ export class PreProductionEnvironmentService {
     projectName: string,
     environmentConfiguration: StagingEnvironmentStateRequest
   ): Promise<ri.Release> => {
-    logger.info('production env request', { requestConfig: environmentConfiguration })
     const releaseApi: ReleaseApi = await connection.getReleaseApi()
     // this could be faster/more efficient if we set tags for the letious deploy stages
     const stagingStatusFilter = ri.ReleaseStatus.Active
@@ -41,8 +39,6 @@ export class PreProductionEnvironmentService {
     if (!release) {
       throw new Error('Could not find a relevant release!')
     }
-    logger.info('staging list', { list: lastProductionReleases.map(x => x.id) })
-    logger.info('staging found', { list: release.id })
     return release
   }
 

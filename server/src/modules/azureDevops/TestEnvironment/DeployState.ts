@@ -21,7 +21,7 @@ export class DeployState {
   @Field()
   workItemUri: string
   @Field()
-  buildNumer: string
+  buildNumber: string
   @Field()
   buildUri: string
 }

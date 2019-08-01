@@ -15,13 +15,13 @@ export class DeployStateMapper {
     let mappedDeploy: DeployState = {
       order: configItem.displayOrder,
       deployedOn: devopsDeployment.completedOn,
-      buildNumer: devopsDeployment.release.name,
+      buildNumber: devopsDeployment.release.name,
       buildUri: build._links.web.href, // devopsDeployment.release.url,
       deployedBy: devopsDeployment.requestedFor.displayName,
       name: configItem.displayName,
       workItemNumber: workItem ? workItem.id.toString() : '',
       workItemTitle: workItem ? workItem.fields['System.Title'] : '',
-      workItemUri: workItem ? workItem.url : '',
+      workItemUri: workItem ? workItem._links.html.href : '',
       currentBranchUri: releasedArtifact.definitionReference.artifactSourceVersionUrl.id,
       currentBranch: releasedArtifact.definitionReference.branch.name.substring(10),
     }
