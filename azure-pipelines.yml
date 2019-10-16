@@ -12,7 +12,7 @@ variables:
   azureSubscription: 'd66eb039-7045-4de7-90df-7ecc7ef0d7bf'
   
   # Web app name
-  webAppName: 'loading_bay'
+  webAppName: 'LoadingBayWeb20190609121440'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
